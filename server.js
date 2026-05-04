@@ -15,7 +15,7 @@ function todayStr(){const d=new Date();return d.getFullYear()+String(d.getMonth(
 function loadDB(){if(!fs.existsSync(DB_FILE)){const i={missions:[],soustraitants:[],counters:{},lastUpdate:Date.now()};fs.writeFileSync(DB_FILE,JSON.stringify(i));return i}return JSON.parse(fs.readFileSync(DB_FILE,'utf8'))}
 function saveDB(d){d.lastUpdate=Date.now();fs.writeFileSync(DB_FILE,JSON.stringify(d,null,2))}
 app.use(express.json());
-app.use(express.static(path.join(__dirname,'public')));
+app.use(express.static(__dirname));
 io.use((socket,next)=>{socket.handshake.auth.code===ACCESS_CODE?next():next(new Error('Code invalide'))});
 io.on('connection',(socket)=>{
 console.log('Connecte:',socket.id);
