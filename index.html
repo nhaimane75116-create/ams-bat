@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>AMS BAT</title>
+<script src="/socket.io/socket.io.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--bg:#090d14;--s1:#111827;--s2:#1a2235;--s3:#212d42;--br:#2a3a55;--acc:#25d366;--acc2:#128c7e;--amb:#f59e0b;--red:#ef4444;--blu:#3b82f6;--pur:#8b5cf6;--txt:#e8edf5;--mut:#5a6a85;--lt:#8fa3c0}
+html,body{height:100%;overflow:hidden;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;color:var(--txt);-webkit-font-smoothing:antialiased}
+#app{height:100%;display:flex;flex-direction:column;max-width:430px;margin:0 auto;position:relative}
+.scr{display:none;flex-direction:column;flex:1;overflow:hidden}
+.scr.on{display:flex;animation:fi .2s ease}
+@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.scroll::-webkit-scrollbar{display:none}
+.pad{padding:0 16px 110px}
+.sb{padding:50px 20px 6px;display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:600;flex-shrink:0;background:var(--bg)}
+.hdr{padding:4px 20px 10px;flex-shrink:0}
+.hdr-row{display:flex;align-items:center;justify-content:space-between}
+.htitle{font-size:22px;font-weight:800;letter-spacing:-.4px}
+.hsub{font-size:11px;color:var(--mut);margin-top:2px}
+.ava{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--acc2),var(--acc));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0;cursor:pointer}
+.ibtn{width:36px;height:36px;border-radius:50%;background:var(--s2);border:1px solid var(--br);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer}
+.sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 16px 10px;flex-shrink:0}
+.scard{background:var(--s2);border:1px solid var(--br);border-radius:14px;padding:12px 8px;text-align:center}
+.snum{font-size:20px;font-weight:800}.snum.g{color:var(--acc)}.snum.a{color:var(--amb)}.snum.r{color:var(--red)}
+.slbl{font-size:9px;color:var(--mut);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+.sec{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin:12px 0 8px}
+.num-row{display:flex;gap:5px;flex-wrap:wrap;margin:4px 0 8px}
+.nbadge{font-size:9px;font-weight:800;font-family:monospace;border-radius:6px;padding:2px 8px;border:1px solid}
+.nbadge.mis{border-color:rgba(59,130,246,.4);color:var(--blu);background:rgba(59,130,246,.08)}
+.nbadge.dev{border-color:rgba(139,92,246,.4);color:var(--pur);background:rgba(139,92,246,.08)}
+.nbadge.fac{border-color:rgba(37,211,102,.4);color:var(--acc);background:rgba(37,211,102,.08)}
+.nbadge.att{border-color:rgba(245,158,11,.4);color:var(--amb);background:rgba(245,158,11,.08)}
+.mc{background:var(--s2);border:1px solid var(--br);border-radius:16px;padding:13px;margin-bottom:9px;cursor:pointer;transition:transform .15s;position:relative;overflow:hidden}
+.mc:active{transform:scale(.98)}
+.mc.hl{border-color:rgba(239,68,68,.4)}
+.mc.hl::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(239,68,68,.06),transparent);pointer-events:none}
+.mc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+.mc-ttl{font-size:13px;font-weight:700}
+.badge{font-size:9px;font-weight:700;padding:3px 9px;border-radius:20px;text-transform:uppercase;letter-spacing:.04em;flex-shrink:0;margin-left:6px}
+.bg{background:rgba(37,211,102,.15);color:var(--acc)}.ba{background:rgba(245,158,11,.15);color:var(--amb)}.bb{background:rgba(59,130,246,.15);color:var(--blu)}.bp{background:rgba(139,92,246,.15);color:var(--pur)}.bx{background:rgba(90,106,133,.15);color:var(--mut)}.br2{background:rgba(239,68,68,.15);color:var(--red)}
+.pbar{height:3px;background:var(--br);border-radius:2px;overflow:hidden;margin:8px 0}
+.pfill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--acc2),var(--acc));transition:width .4s}
+.pfill.a{background:linear-gradient(90deg,#d97706,var(--amb))}.pfill.r{background:linear-gradient(90deg,#b91c1c,var(--red))}
+.mc-ft{display:flex;gap:8px;font-size:10px;color:var(--mut);flex-wrap:wrap}
+.alert-dot{width:8px;height:8px;border-radius:50%;background:var(--red);position:absolute;top:12px;right:12px;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.fab{position:fixed;bottom:88px;right:calc(50% - 215px + 16px);width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,var(--acc2),var(--acc));display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 6px 24px rgba(37,211,102,.4);cursor:pointer;z-index:50;border:none;color:#fff}
+.bnav{display:flex;justify-content:space-around;padding:10px 0 32px;border-top:1px solid var(--br);background:var(--s1);flex-shrink:0;z-index:40}
+.ni{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:9px;color:var(--mut);cursor:pointer;padding:4px 10px;border-radius:12px}
+.ni.on{color:var(--acc)}.ni-ic{font-size:20px;line-height:1}
+.fg{margin-bottom:12px}
+.fl{font-size:11px;font-weight:600;color:var(--lt);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;display:block}
+.fi{width:100%;background:var(--s2);border:1px solid var(--br);border-radius:12px;padding:12px 14px;font-size:15px;font-family:inherit;color:var(--txt);outline:none;-webkit-appearance:none;transition:border-color .2s}
+.fi:focus{border-color:var(--acc)}.fi::placeholder{color:var(--mut)}
+select.fi option{background:var(--s1)}
+textarea.fi{resize:none}
+.frow{display:flex;gap:10px}.frow .fg{flex:1}
+.btn{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:14px;border:none;border-radius:14px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:transform .15s}
+.btn:active{transform:scale(.97)}
+.btn.p{background:linear-gradient(135deg,var(--acc2),var(--acc));color:#fff}.btn.s{background:var(--s2);color:var(--txt);border:1px solid var(--br)}.btn.w{background:#075e54;color:#fff}.btn.d{background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.2)}.btn.add{background:rgba(37,211,102,.08);color:var(--acc);border:1px dashed rgba(37,211,102,.35);padding:11px;font-size:12px}
+.sp8{height:8px}.sp16{height:16px}
+.back{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--acc);cursor:pointer;padding:10px 20px 2px;flex-shrink:0}
+.dhero{background:linear-gradient(180deg,#071a0f,var(--bg));padding:6px 20px 16px;flex-shrink:0}
+.damt{font-size:30px;font-weight:800;color:var(--acc);line-height:1;margin-bottom:3px}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.chip{background:var(--s2);border:1px solid var(--br);border-radius:20px;padding:4px 10px;font-size:10px;color:var(--lt)}
+.chip.g{border-color:rgba(37,211,102,.3);color:var(--acc);background:rgba(37,211,102,.08)}.chip.r{border-color:rgba(239,68,68,.3);color:var(--red);background:rgba(239,68,68,.08)}
+.tl{display:flex;flex-direction:column}.ts{display:flex;gap:12px}
+.tl-l{display:flex;flex-direction:column;align-items:center;width:22px;flex-shrink:0}
+.td{width:18px;height:18px;border-radius:50%;border:2px solid var(--br);background:var(--s1);display:flex;align-items:center;justify-content:center;font-size:8px;flex-shrink:0;z-index:1}
+.td.d{background:var(--acc);border-color:var(--acc);color:#fff}.td.a{background:var(--amb);border-color:var(--amb);color:#fff;animation:pa 2s infinite}
+@keyframes pa{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,.5)}50%{box-shadow:0 0 0 7px rgba(245,158,11,0)}}
+.tln{width:2px;flex:1;background:var(--br);min-height:16px}.tln.d{background:var(--acc)}
+.tc{padding-bottom:16px;flex:1}.tt{font-size:12px;font-weight:600}.td2{font-size:10px;color:var(--mut);margin-top:2px}
+.ck-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--br);cursor:pointer}
+.ck-item:last-child{border-bottom:none}
+.ck-box{width:20px;height:20px;border-radius:6px;border:2px solid var(--br);display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;transition:all .2s}
+.ck-box.done{background:var(--acc);border-color:var(--acc);color:#fff}
+.ck-txt{font-size:12px;flex:1}.ck-txt.done{text-decoration:line-through;color:var(--mut)}
+.pc{background:var(--s2);border:1px solid var(--br);border-radius:16px;padding:14px;margin-bottom:10px}
+.divider{height:1px;background:var(--br);margin:10px 0}
+.stc{background:var(--s2);border:1px solid var(--br);border-radius:16px;padding:13px;margin-bottom:8px}
+.stc-top{display:flex;align-items:center;gap:11px}
+.sta{display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;flex-shrink:0;border-radius:50%}
+.stc-actions{display:flex;gap:6px;margin-top:10px}.stc-actions .btn{padding:9px;font-size:11px}
+.av-mini{width:20px;height:20px;border-radius:50%;border:2px solid var(--s2);display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:800;color:#fff;margin-left:-6px;flex-shrink:0}
+.av-mini:first-child{margin-left:0}
+.av-wrap{display:flex;margin-top:4px;align-items:center;gap:4px}
+.mo{position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(8px);z-index:200;display:none;align-items:flex-end;justify-content:center}
+.mo.on{display:flex}
+.mbox{background:var(--s1);border-radius:24px 24px 0 0;width:100%;max-width:430px;padding:18px 20px 36px;border-top:1px solid var(--br);animation:sb .3s ease;max-height:88vh;overflow-y:auto}
+@keyframes sb{from{transform:translateY(40px)}to{transform:translateY(0)}}
+.mh{width:36px;height:4px;background:var(--br);border-radius:2px;margin:0 auto 16px}
+.mt{font-size:17px;font-weight:800;margin-bottom:14px}
+.srch{background:var(--s2);border:1px solid var(--br);border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.srch input{flex:1;background:none;border:none;outline:none;font-size:14px;color:var(--txt);font-family:inherit}
+.srch input::placeholder{color:var(--mut)}
+.ftabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px;scrollbar-width:none}
+.ftabs::-webkit-scrollbar{display:none}
+.ftab{padding:6px 14px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;border:1px solid var(--br);background:var(--s2);color:var(--mut)}
+.ftab.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+.toast{position:fixed;top:68px;left:50%;transform:translateX(-50%) translateY(-10px);background:var(--s2);border:1px solid var(--acc);color:var(--acc);font-size:12px;font-weight:700;padding:10px 20px;border-radius:30px;z-index:300;opacity:0;transition:all .3s;white-space:nowrap;pointer-events:none;max-width:90vw}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.empty{text-align:center;padding:50px 20px;color:var(--mut)}
+.empty .ei{font-size:40px;margin-bottom:10px}.empty .et{font-size:14px;font-weight:700;color:var(--lt);margin-bottom:6px}
+.itv-blk{background:var(--s3);border:1px solid var(--br);border-radius:14px;padding:13px;margin-bottom:10px;position:relative}
+.itv-num{font-size:10px;font-weight:700;color:var(--acc);margin-bottom:10px}
+.itv-rm{position:absolute;top:11px;right:11px;width:26px;height:26px;border-radius:50%;background:rgba(239,68,68,.15);border:none;color:var(--red);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.chart-bar-wrap{background:var(--s2);border:1px solid var(--br);border-radius:16px;padding:16px;margin-bottom:10px}
+.chart-title{font-size:12px;font-weight:700;margin-bottom:14px;color:var(--lt)}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.bar-lbl{font-size:10px;color:var(--mut);width:28px;text-align:right;flex-shrink:0}
+.bar-bg{flex:1;height:22px;background:var(--s3);border-radius:6px;overflow:hidden}
+.bar-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--acc2),var(--acc));display:flex;align-items:center;justify-content:flex-end;padding-right:6px;transition:width .6s ease}
+.bar-fill .bv{font-size:9px;font-weight:700;color:#fff;white-space:nowrap}
+.bar-fill.a{background:linear-gradient(90deg,#d97706,var(--amb))}
+.conf-btn-row{display:flex;gap:10px;margin-top:4px}.conf-btn-row .btn{flex:1}
+#s-pin{background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:30px 20px;overflow-y:auto}
+.pin-logo{font-size:48px}.pin-title{font-size:22px;font-weight:800;text-align:center}.pin-sub{font-size:13px;color:var(--mut);text-align:center}
+.pin-dots{display:flex;gap:16px}.pin-dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--br);transition:all .2s}.pin-dot.filled{background:var(--acc);border-color:var(--acc)}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;max-width:280px}
+.pin-key{background:var(--s2);border:1px solid var(--br);border-radius:16px;padding:18px 10px;font-size:22px;font-weight:700;text-align:center;cursor:pointer;transition:all .15s;user-select:none}
+.pin-key:active{background:var(--s3);transform:scale(.93)}
+.pin-profiles{display:flex;flex-direction:column;gap:10px;width:100%;max-width:320px}
+.pin-profile{background:var(--s2);border:1px solid var(--br);border-radius:16px;padding:14px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all .2s}
+.pin-profile:active{transform:scale(.97);border-color:var(--acc)}
+.sync-dot{width:8px;height:8px;border-radius:50%;background:var(--acc);display:inline-block;margin-right:6px;animation:pulse 2s infinite}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="sb"><span id="clock">--:--</span><span style="color:var(--mut);font-size:10px" id="user-lbl"></span></div>
+
+  <!-- ÉCRAN ACCÈS -->
+  <div class="scr on" id="s-access" style="flex:1;align-items:center;justify-content:center;padding:30px 24px;gap:16px">
+    <div style="font-size:56px">🏗️</div>
+    <div style="font-size:24px;font-weight:800">AMS BAT</div>
+    <div style="font-size:13px;color:var(--mut);text-align:center">Entrez le code d'accès partagé</div>
+    <input class="fi" id="access-input" placeholder="Code d'accès…" style="text-align:center;font-size:18px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;max-width:280px">
+    <button class="btn p" style="max-width:280px" onclick="verifyAccess()">Accéder →</button>
+    <div style="font-size:11px;color:var(--mut)">Code fourni par votre gestionnaire</div>
+    <div id="access-err" style="font-size:12px;color:var(--red)"></div>
+  </div>
+
+  <!-- PIN -->
+  <div class="scr" id="s-pin" style="flex:1">
+    <div id="pin-step1" style="display:flex;flex-direction:column;align-items:center;gap:16px;width:100%;padding:20px 16px">
+      <div class="pin-logo">🏗️</div>
+      <div class="pin-title">AMS BAT</div>
+      <div class="pin-sub" id="sync-status"><span class="sync-dot"></span>Connecté</div>
+      <div class="pin-profiles" id="profile-list"></div>
+      <div style="font-size:11px;color:var(--mut);text-align:center">Gestionnaire ? <span style="color:var(--acc);cursor:pointer" onclick="showPinGest()">Accès administrateur</span></div>
+    </div>
+    <div id="pin-step2" style="display:none;flex-direction:column;align-items:center;gap:16px;width:100%;padding:20px 0">
+      <div class="pin-logo" id="pin-ico">🔐</div>
+      <div class="pin-title" id="pin-name">Code PIN</div>
+      <div class="pin-sub" id="pin-hint">Entrez votre code à 4 chiffres</div>
+      <div class="pin-dots"><div class="pin-dot" id="pd0"></div><div class="pin-dot" id="pd1"></div><div class="pin-dot" id="pd2"></div><div class="pin-dot" id="pd3"></div></div>
+      <div class="pin-pad" id="pin-pad"></div>
+      <div style="font-size:11px;color:var(--acc);cursor:pointer" onclick="backToProfiles()">← Changer de profil</div>
+    </div>
+  </div>
+
+  <!-- ACCUEIL -->
+  <div class="scr" id="s-home">
+    <div class="hdr">
+      <div class="hdr-row">
+        <div><div class="htitle">AMS BAT</div><div class="hsub" id="home-sub"></div></div>
+        <div style="display:flex;gap:8px"><div class="ibtn" onclick="showAlerts()">🔔</div><div class="ava" onclick="deconnect()">HN</div></div>
+      </div>
+    </div>
+    <div class="sgrid" id="hstats"></div>
+    <div class="scroll"><div class="pad">
+      <div id="h-alerts"></div>
+      <div class="sec">📋 Missions actives</div><div id="h-cur"></div>
+      <div class="sec">⚠️ À valider</div><div id="h-val"></div>
+    </div></div>
+    <button class="fab" onclick="goNew()">+</button>
+  </div>
+
+  <!-- MISSIONS -->
+  <div class="scr" id="s-mis">
+    <div class="hdr"><div class="hdr-row"><div class="htitle">Missions</div><div class="ibtn" onclick="goNew()">+</div></div></div>
+    <div class="scroll"><div class="pad">
+      <div class="srch"><span>🔍</span><input placeholder="N° mission, titre…" id="mq" oninput="renderMis()"></div>
+      <div class="ftabs" id="ftabs"></div>
+      <div id="mlist"></div>
+    </div></div>
+  </div>
+
+  <!-- ÉQUIPES -->
+  <div class="scr" id="s-eq">
+    <div class="hdr"><div class="hdr-row"><div class="htitle">Sous-traitants</div><div class="ibtn" onclick="openModal('m-st')">+</div></div></div>
+    <div class="scroll"><div class="pad">
+      <div class="srch"><span>🔍</span><input placeholder="Chercher…" id="stq" oninput="renderST()"></div>
+      <div id="stlist"></div>
+    </div></div>
+  </div>
+
+  <!-- COMPTA -->
+  <div class="scr" id="s-cpt">
+    <div class="hdr"><div class="hdr-row"><div class="htitle">Comptabilité</div><div class="ibtn" onclick="toast('📤 Export bientôt dispo')">📤</div></div></div>
+    <div class="scroll"><div class="pad">
+      <div id="csumm" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px"></div>
+      <div id="cpend"></div><div id="cpaid"></div>
+    </div></div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="scr" id="s-dash">
+    <div class="hdr"><div class="hdr-row"><div class="htitle">Tableau de bord</div><div class="ibtn" onclick="renderDash()">↻</div></div></div>
+    <div class="scroll"><div class="pad" id="dash-content"></div></div>
+  </div>
+
+  <!-- NOUVELLE MISSION -->
+  <div class="scr" id="s-new">
+    <div class="back" onclick="goBack()">‹ Retour</div>
+    <div style="padding:0 20px 8px;flex-shrink:0">
+      <div style="font-size:18px;font-weight:800">Nouvelle mission</div>
+      <div style="font-size:11px;color:var(--mut);margin-top:2px">N° généré automatiquement à la création</div>
+    </div>
+    <div class="scroll"><div class="pad">
+      <div class="fg"><label class="fl">Titre *</label><input class="fi" id="f-tit" placeholder="Ex : Plomberie – Bât. A"></div>
+      <div class="fg"><label class="fl">📍 Adresse *</label><input class="fi" id="f-adr" placeholder="Ex : 12 rue des Lilas, Paris"></div>
+      <div class="fg"><label class="fl">🔑 Code porte</label><input class="fi" id="f-cod" placeholder="Ex : A1234#"></div>
+      <div class="frow">
+        <div class="fg"><label class="fl">📅 Début</label><input type="datetime-local" class="fi" id="f-deb"></div>
+        <div class="fg"><label class="fl">🏁 Fin</label><input type="datetime-local" class="fi" id="f-fin"></div>
+      </div>
+      <div class="sec">📄 Documents client</div>
+      <div style="background:var(--s3);border:1px solid var(--br);border-radius:14px;padding:14px;margin-bottom:12px">
+        <div class="frow">
+          <div class="fg" style="margin-bottom:0"><label class="fl">N° Devis</label><input class="fi" id="f-devis" placeholder="Ex : DEV-2026-001" style="font-family:monospace;font-size:13px"></div>
+          <div class="fg" style="margin-bottom:0"><label class="fl">Montant devis €</label><input type="number" class="fi" id="f-devismnt" placeholder="0"></div>
+        </div>
+        <div class="sp8"></div>
+        <div class="fg" style="margin-bottom:0">
+          <label class="fl">Statut paiement client</label>
+          <select class="fi" id="f-paystat">
+            <option value="attente">⏳ En attente</option>
+            <option value="partiel">⚠️ Partiel</option>
+            <option value="paye">✅ Payé</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg"><label class="fl">Description</label><textarea class="fi" id="f-dsc" rows="3" placeholder="Détails des travaux…"></textarea></div>
+      <div class="sec">✅ Checklist</div>
+      <div id="ck-form-list"></div>
+      <div class="fg"><div style="display:flex;gap:8px"><input class="fi" id="ck-new" placeholder="Ajouter une tâche…" style="flex:1"><button class="ibtn" onclick="addCkItem()">+</button></div></div>
+      <div class="sec">👷 Intervenants *</div>
+      <div id="itv-form-list"></div>
+      <button class="btn add" id="add-itv-btn" onclick="addItvForm()">+ Ajouter un intervenant</button>
+      <div class="sp16"></div>
+      <button class="btn p" onclick="creer(false)">📤 Créer et envoyer WhatsApp</button>
+      <div class="sp8"></div>
+      <button class="btn s" onclick="creer(true)">💾 Enregistrer sans envoyer</button>
+    </div></div>
+  </div>
+
+  <!-- DÉTAIL -->
+  <div class="scr" id="s-det">
+    <div class="back" onclick="goBack()">‹ Retour</div>
+    <div class="dhero" id="dhero"></div>
+    <div class="scroll"><div class="pad">
+      <div class="sec">📄 Documents</div><div id="d-docs"></div>
+      <div class="sec">Progression</div>
+      <div style="background:var(--s2);border:1px solid var(--br);border-radius:16px;padding:14px;margin-bottom:10px"><div class="tl" id="dtl"></div></div>
+      <div class="sec">✅ Checklist</div>
+      <div style="background:var(--s2);border:1px solid var(--br);border-radius:16px;padding:14px;margin-bottom:10px" id="d-ck"></div>
+      <div class="sec">👷 Intervenants</div><div id="d-itvs"></div>
+      <div class="sec">Actions</div><div id="dact"></div>
+      <div class="sec">Détail financier</div>
+      <div style="background:var(--s2);border:1px solid var(--br);border-radius:16px;padding:14px;margin-bottom:10px" id="dfin"></div>
+    </div></div>
+  </div>
+
+  <!-- VUE INTERVENANT -->
+  <div class="scr" id="s-iv">
+    <div class="hdr">
+      <div class="hdr-row">
+        <div><div class="htitle" id="iv-name">Mes missions</div><div class="hsub" id="iv-sub"></div></div>
+        <div class="ava" onclick="deconnect()" id="iv-ava">–</div>
+      </div>
+    </div>
+    <div class="scroll"><div class="pad"><div class="ftabs" id="iv-ftabs"></div><div id="iv-list"></div></div></div>
+  </div>
+
+  <!-- DÉTAIL INTERVENANT -->
+  <div class="scr" id="s-ivdet">
+    <div class="back" onclick="goBackIV()">‹ Retour</div>
+    <div class="dhero" id="ivdhero"></div>
+    <div class="scroll"><div class="pad">
+      <div class="sec">✅ Mes tâches</div>
+      <div style="background:var(--s2);border:1px solid var(--br);border-radius:16px;padding:14px;margin-bottom:10px" id="ivd-ck"></div>
+      <div class="sec">💰 Mon règlement</div>
+      <div style="background:var(--s2);border:1px solid var(--br);border-radius:16px;padding:14px;margin-bottom:10px" id="ivd-fin"></div>
+      <div class="sec">📍 Infos chantier</div>
+      <div style="background:var(--s2);border:1px solid var(--br);border-radius:16px;padding:14px;margin-bottom:10px" id="ivd-info"></div>
+    </div></div>
+  </div>
+
+  <!-- NAV GEST -->
+  <div class="bnav" id="bnav-gest" style="display:none">
+    <div class="ni on" id="n-home" onclick="tab('home')"><div class="ni-ic">🏠</div>Accueil</div>
+    <div class="ni" id="n-mis" onclick="tab('mis')"><div class="ni-ic">📋</div>Missions</div>
+    <div class="ni" id="n-eq" onclick="tab('eq')"><div class="ni-ic">👥</div>Équipes</div>
+    <div class="ni" id="n-cpt" onclick="tab('cpt')"><div class="ni-ic">💳</div>Compta</div>
+    <div class="ni" id="n-dash" onclick="tab('dash')"><div class="ni-ic">📊</div>Bord</div>
+  </div>
+
+  <!-- NAV INTERVENANT -->
+  <div class="bnav" id="bnav-iv" style="display:none">
+    <div class="ni on" id="iv-n-act" onclick="ivTab('actives')"><div class="ni-ic">🔨</div>En cours</div>
+    <div class="ni" id="iv-n-arch" onclick="ivTab('archive')"><div class="ni-ic">📦</div>Archives</div>
+    <div class="ni" id="iv-n-pay" onclick="ivTab('reglement')"><div class="ni-ic">💰</div>Règlements</div>
+  </div>
+</div>
+
+<!-- MODALS -->
+<div class="mo" id="m-st">
+  <div class="mbox">
+    <div class="mh"></div><div class="mt">👷 Nouveau sous-traitant</div>
+    <div class="fg"><label class="fl">Société</label><input class="fi" id="st-soc" placeholder="Ex : BENALI PLOMBERIE SARL"></div>
+    <div class="fg"><label class="fl">Nom intervenant</label><input class="fi" id="st-nom" placeholder="Prénom Nom"></div>
+    <div class="fg"><label class="fl">Spécialité</label><input class="fi" id="st-spec" placeholder="Ex : Plomberie…"></div>
+    <div class="fg"><label class="fl">📱 Téléphone WhatsApp</label><input type="tel" class="fi" id="st-tel" placeholder="+33 6 00 00 00 00"></div>
+    <div class="fg"><label class="fl">🔐 Code PIN (4 chiffres)</label><input type="number" class="fi" id="st-pin" placeholder="Ex : 1234"></div>
+    <div class="sp8"></div>
+    <button class="btn p" onclick="ajouterST()">✅ Ajouter</button>
+    <div class="sp8"></div>
+    <button class="btn s" onclick="closeModal('m-st')">Annuler</button>
+  </div>
+</div>
+
+<div class="mo" id="m-docs">
+  <div class="mbox">
+    <div class="mh"></div><div class="mt">📄 Documents client</div>
+    <div class="fg"><label class="fl">N° Devis</label><input class="fi" id="ed-devis" style="font-family:monospace"></div>
+    <div class="fg"><label class="fl">Montant devis €</label><input type="number" class="fi" id="ed-devismnt"></div>
+    <div class="fg"><label class="fl">N° Facture (vide = auto)</label><input class="fi" id="ed-facture" style="font-family:monospace" placeholder="Laissez vide pour auto-générer"></div>
+    <div class="fg">
+      <label class="fl">Statut paiement client</label>
+      <select class="fi" id="ed-paystat">
+        <option value="attente">⏳ En attente</option>
+        <option value="partiel">⚠️ Partiel</option>
+        <option value="paye">✅ Payé</option>
+      </select>
+    </div>
+    <div class="sp8"></div>
+    <button class="btn p" onclick="saveDocs()">💾 Enregistrer</button>
+    <div class="sp8"></div>
+    <button class="btn s" onclick="closeModal('m-docs')">Annuler</button>
+  </div>
+</div>
+
+<div class="mo" id="m-wa">
+  <div class="mbox">
+    <div class="mh"></div><div class="mt">📱 Envoi WhatsApp</div>
+    <div style="font-size:12px;color:var(--mut);margin-bottom:14px">Appuyez sur chaque bouton :</div>
+    <div id="wa-steps"></div>
+    <div class="sp8"></div>
+    <button class="btn s" onclick="closeModal('m-wa');tab('home');toast('✅ Mission créée !')">✅ Terminer</button>
+  </div>
+</div>
+
+<div class="mo" id="m-conf">
+  <div class="mbox">
+    <div class="mh"></div><div class="mt" id="conf-title">Confirmation</div>
+    <div style="font-size:13px;color:var(--mut);margin-bottom:18px" id="conf-msg"></div>
+    <div class="conf-btn-row">
+      <button class="btn s" onclick="closeModal('m-conf')">Annuler</button>
+      <button class="btn d" id="conf-ok">Confirmer</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="tst"></div>
+
+<script>
+let socket=null,db={missions:[],soustraitants:[],counters:{}},currentUser=null,curTab='home',ivCurTab='actives',newItvs=[],newCks=[],detailMId=null,editDocsMId=null,filterS='tout';
+const USERS=[
+  {nom:'Haimane',role:'Administrateur',pin:'0000',initiales:'HN',col:'#128c7e'},
+  {nom:'Shyneze',role:'Comptabilité',pin:'1111',initiales:'SH',col:'#8b5cf6'},
+  {nom:'Fatima',role:'Paiements',pin:'2222',initiales:'FA',col:'#f59e0b'},
+  {nom:'Zara',role:'Manager équipes',pin:'3333',initiales:'ZA',col:'#3b82f6'},
+  {nom:'Myriam',role:'Chef de projet',pin:'4444',initiales:'MY',col:'#ec4899'},
+];
+const SL={envoyee:{l:'Envoyée',c:'bb'},en_cours:{l:'En cours',c:'bg'},a_valider:{l:'À valider',c:'ba'},compta:{l:'Compta',c:'bp'},payee:{l:'Payée ✓',c:'bx'}};
+const $=id=>document.getElementById(id);
+const fd=dt=>{if(!dt)return'—';const d=new Date(dt);return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit'})};
+const fdt=dt=>{if(!dt)return'—';const d=new Date(dt);return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit'})+' '+d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})};
+const ttc=(m,t)=>+(m*(1+t/100)).toFixed(0);
+const totalHT=m=>m.itvs.reduce((a,i)=>a+i.mnt,0);
+const totalTTC=m=>m.itvs.reduce((a,i)=>a+ttc(i.mnt,i.tva),0);
+const stOf=nom=>db.soustraitants.find(s=>s.nom===nom)||{nom,tel:'',col:'#5a6a85',soc:'—',pin:'0000'};
+const init=n=>n.trim().split(' ').filter(Boolean).map(w=>w[0]).join('').toUpperCase().slice(0,2)||'?';
+const clean=t=>t.replace(/\D/g,'');
+const isLate=m=>m.fin&&new Date(m.fin)<new Date()&&m.stat!=='payee';
+const ckDone=m=>m.checklist.filter(c=>c.done).length;
+const ckTotal=m=>m.checklist.length;
+function toast(msg,dur=2800){const t=$('tst');t.textContent=msg;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),dur)}
+function openModal(id){$(id).classList.add('on')}
+function closeModal(id){$(id).classList.remove('on')}
+document.querySelectorAll('.mo').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('on')}));
+function confirm2(title,msg,cb){$('conf-title').textContent=title;$('conf-msg').textContent=msg;$('conf-ok').onclick=()=>{closeModal('m-conf');cb()};openModal('m-conf')}
+const clk=()=>{const n=new Date();$('clock').textContent=`${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`};
+clk();setInterval(clk,10000);
+function emit(e,d){if(socket)socket.emit(e,d)}
+function show(id){document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'));$(id).classList.add('on')}
+
+// CONNEXION
+function verifyAccess(){
+  const code=$('access-input').value.trim().toUpperCase();
+  if(!code){$('access-err').textContent='⚠️ Entrez le code';return}
+  socket=io({auth:{code}});
+  socket.on('connect',()=>{toast('🟢 Connecté !');show('s-pin');showProfiles()});
+  socket.on('connect_error',()=>{$('access-err').textContent='❌ Code incorrect';socket=null});
+  socket.on('full-sync',data=>{db=data;refreshCurrentView()});
+  socket.on('error',e=>toast('❌ '+(e.msg||e)));
+}
+$('access-input').addEventListener('keydown',e=>{if(e.key==='Enter')verifyAccess()});
+
+function refreshCurrentView(){
+  if(!currentUser)return;
+  if(currentUser.type==='gest'){
+    if(curTab==='home')renderHome();if(curTab==='mis')renderMis();if(curTab==='eq')renderST();
+    if(curTab==='cpt')renderCpt();if(curTab==='dash')renderDash();
+    if($('s-det').classList.contains('on')&&detailMId)buildDetail(detailMId);
+  }else{
+    renderIV(ivCurTab);
+    if($('s-ivdet').classList.contains('on')&&detailMId)buildIVDetail(detailMId);
+  }
+}
+
+// PIN
+let pinBuffer='',pinTarget=null;
+function showProfiles(){
+  $('pin-step1').style.display='flex';$('pin-step2').style.display='none';
+  $('profile-list').innerHTML=db.soustraitants.map(st=>`<div class="pin-profile" onclick="selectProfile('${st.nom}')"><div class="sta" style="background:${st.col};width:42px;height:42px;font-size:13px">${init(st.nom)}</div><div style="flex:1"><div style="font-size:14px;font-weight:700">${st.nom}</div><div style="font-size:11px;color:var(--mut)">${st.soc}</div></div><div style="font-size:18px;color:var(--mut)">›</div></div>`).join('')+(db.soustraitants.length===0?'<div style="color:var(--mut);font-size:12px;text-align:center">Aucun intervenant.<br>Connectez-vous en gestionnaire.</div>':'');
+}
+function showProfiles(){
+  $('pin-step1').style.display='flex';$('pin-step2').style.display='none';
+  // Comptes internes AMS BAT
+  const interne=USERS.map(u=>`<div class="pin-profile" onclick="selectUser('${u.nom}')"><div class="sta" style="background:${u.col};width:42px;height:42px;font-size:13px">${u.initiales}</div><div style="flex:1"><div style="font-size:14px;font-weight:700">${u.nom}</div><div style="font-size:11px;color:var(--mut)">${u.role}</div></div><div style="font-size:18px;color:var(--mut)">›</div></div>`).join('');
+  // Sous-traitants
+  const st=db.soustraitants.length?'<div style="font-size:10px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.08em;margin:12px 0 8px">👷 Intervenants</div>'+db.soustraitants.map(s=>`<div class="pin-profile" onclick="selectST('${s.nom}')"><div class="sta" style="background:${s.col};width:42px;height:42px;font-size:13px">${init(s.nom)}</div><div style="flex:1"><div style="font-size:14px;font-weight:700">${s.nom}</div><div style="font-size:11px;color:var(--mut)">${s.soc}</div></div><div style="font-size:18px;color:var(--mut)">›</div></div>`).join(''):'';
+  $('profile-list').innerHTML='<div style="font-size:10px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">🏗️ Équipe AMS BAT</div>'+interne+st;
+}
+function selectUser(nom){pinTarget={type:'gest',user:USERS.find(u=>u.nom===nom)};showPinPad(USERS.find(u=>u.nom===nom).initiales,nom,'Votre code PIN à 4 chiffres')}
+function selectST(nom){pinTarget={type:'itv',st:db.soustraitants.find(s=>s.nom===nom)};showPinPad(init(nom),nom,'Votre code PIN à 4 chiffres')}
+function showPinGest(){selectUser('Haimane')}
+function backToProfiles(){pinBuffer='';$('pin-step1').style.display='flex';$('pin-step2').style.display='none'}
+function showPinPad(ico,name,hint){
+  pinBuffer='';$('pin-step1').style.display='none';$('pin-step2').style.display='flex';
+  $('pin-ico').textContent=ico;$('pin-name').textContent=name;$('pin-hint').textContent=hint;updateDots();
+  $('pin-pad').innerHTML=[1,2,3,4,5,6,7,8,9,'',0,'⌫'].map(k=>`<div class="pin-key" onclick="pinKey('${k}')">${k}</div>`).join('');
+}
+function updateDots(){['pd0','pd1','pd2','pd3'].forEach((id,i)=>$(id).classList.toggle('filled',i<pinBuffer.length))}
+function pinKey(k){if(k==='⌫'){pinBuffer=pinBuffer.slice(0,-1)}else if(k==='')return;else if(pinBuffer.length<4)pinBuffer+=k;updateDots();if(pinBuffer.length===4)setTimeout(checkPin,150)}
+function checkPin(){
+  if(pinTarget.type==='gest'){
+    pinBuffer===pinTarget.user.pin?loginGest(pinTarget.user):wrongPin();
+  } else {
+    pinBuffer===pinTarget.st.pin?loginITV(pinTarget.st):wrongPin();
+  }
+}
+function wrongPin(){toast('❌ Code PIN incorrect');pinBuffer='';updateDots()}
+function loginGest(user){
+  currentUser={type:'gest',user};
+  $('user-lbl').textContent=user.nom+' · '+user.role;
+  $('s-pin').classList.remove('on');$('bnav-gest').style.display='flex';
+  // Mettre à jour l'avatar
+  document.querySelector('#s-home .ava').textContent=user.initiales;
+  tab('home');
+}
+function loginITV(st){currentUser={type:'itv',st};$('user-lbl').textContent=st.nom;$('s-pin').classList.remove('on');$('bnav-iv').style.display='flex';$('iv-name').textContent=st.nom;$('iv-sub').textContent=st.soc+' · '+st.spec;$('iv-ava').textContent=init(st.nom);ivTab('actives')}
+function deconnect(){currentUser=null;$('bnav-gest').style.display='none';$('bnav-iv').style.display='none';show('s-pin');showProfiles()}
+
+// NAV
+function tab(t){curTab=t;document.querySelectorAll('#bnav-gest .ni').forEach(n=>n.classList.remove('on'));$('n-'+t).classList.add('on');$('bnav-gest').style.display='flex';show('s-'+t);if(t==='home')renderHome();if(t==='mis')renderMis();if(t==='eq')renderST();if(t==='cpt')renderCpt();if(t==='dash')renderDash()}
+function goNew(){$('bnav-gest').style.display='none';show('s-new');initNewForm()}
+function goBack(){$('bnav-gest').style.display='flex';tab(curTab)}
+function goDetail(id){$('bnav-gest').style.display='none';detailMId=id;show('s-det');buildDetail(id)}
+function ivTab(t){ivCurTab=t;['act','arch','pay'].forEach(k=>$('iv-n-'+k)?.classList.remove('on'));const map={actives:'act',archive:'arch',reglement:'pay'};$('iv-n-'+map[t])?.classList.add('on');show('s-iv');$('bnav-iv').style.display='flex';renderIV(t)}
+function goBackIV(){ivTab(ivCurTab)}
+function goIVDet(id){$('bnav-iv').style.display='none';detailMId=id;show('s-ivdet');buildIVDetail(id)}
+
+// NUMÉROS
+function numBadges(m){const ps={attente:'att',partiel:'att',paye:''};return`<div class="num-row"><span class="nbadge mis">🔢 MIS-${m.numMission||'—'}</span>${m.devis?`<span class="nbadge dev">📋 DEV-${m.devis}</span>`:''} ${m.facture?`<span class="nbadge fac ${ps[m.paystat]||''}">🧾 FAC-${m.facture}</span>`:''} ${m.paystat?`<span class="nbadge ${m.paystat==='paye'?'fac':'att'}">${m.paystat==='paye'?'✅ Client payé':m.paystat==='partiel'?'⚠️ Partiel':'⏳ Non payé'}</span>`:''}</div>`}
+
+// CARD
+function avMini(itvs){return`<div class="av-wrap">${itvs.slice(0,4).map(i=>{const s=stOf(i.st);return`<div class="av-mini" style="background:${s.col}">${init(i.st)}</div>`}).join('')}${itvs.length>4?`<div class="av-mini" style="background:var(--mut)">+${itvs.length-4}</div>`:''}<span style="font-size:10px;color:var(--mut);margin-left:4px">${itvs.length} intervenant${itvs.length>1?'s':''}</span></div>`}
+function card(m,fn='goDetail'){const s=SL[m.stat]||SL.envoyee;const late=isLate(m);const pc=late?'r':m.stat==='a_valider'?'a':'';const ht=totalHT(m);return`<div class="mc${late?' hl':''}" onclick="${fn}('${m.id}')">${late?'<div class="alert-dot"></div>':''}<div class="mc-top"><div style="flex:1;padding-right:8px"><div class="mc-ttl">${m.tit}</div><div style="font-size:10px;font-family:monospace;color:var(--mut);margin-top:2px">MIS-${m.numMission||'—'}</div>${avMini(m.itvs)}</div><span class="badge ${s.c}">${late?'⚠️ Retard':s.l}</span></div><div class="pbar"><div class="pfill ${pc}" style="width:${m.prog}%"></div></div><div class="mc-ft"><span>💰 ${ht?ht.toLocaleString('fr-FR')+' € HT':'—'}</span>${ckTotal(m)?`<span>✅ ${ckDone(m)}/${ckTotal(m)}</span>`:''}<span>🏁 ${fdt(m.fin)}</span>${m.paystat==='paye'?'<span style="color:var(--acc)">✅ Client payé</span>':m.paystat==='attente'?'<span style="color:var(--amb)">⏳ Paiement client</span>':''}</div></div>`}
+
+// HOME
+function renderHome(){const late=db.missions.filter(isLate);const act=db.missions.filter(m=>['en_cours','envoyee'].includes(m.stat));const val=db.missions.filter(m=>['a_valider','compta'].includes(m.stat));$('hstats').innerHTML=`<div class="scard"><div class="snum">${db.missions.length}</div><div class="slbl">Total</div></div><div class="scard"><div class="snum g">${act.length}</div><div class="slbl">En cours</div></div><div class="scard"><div class="snum r">${late.length}</div><div class="slbl">En retard</div></div>`;$('home-sub').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});$('h-alerts').innerHTML=late.length?`<div style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);border-radius:14px;padding:13px;margin-bottom:12px"><div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:8px">⚠️ ${late.length} mission(s) en retard</div>${late.map(m=>`<div style="font-size:11px;color:var(--mut);padding:2px 0">• MIS-${m.numMission||'?'} ${m.tit}</div>`).join('')}</div>`:'';$('h-cur').innerHTML=act.length?act.map(m=>card(m)).join(''):'<div style="color:var(--mut);font-size:12px;padding:6px 0">Aucune mission en cours</div>';$('h-val').innerHTML=val.length?val.map(m=>card(m)).join(''):'<div style="color:var(--mut);font-size:12px;padding:6px 0">Aucune validation en attente 🎉</div>'}
+function showAlerts(){toast(db.missions.filter(isLate).length?`⚠️ ${db.missions.filter(isLate).length} en retard`:'✅ Aucun retard')}
+
+// MISSIONS
+function renderMis(){const tabs=['tout','envoyee','en_cours','a_valider','compta','payee'];const tl={tout:'Tout',envoyee:'Envoyées',en_cours:'En cours',a_valider:'À valider',compta:'Compta',payee:'Payées'};$('ftabs').innerHTML=tabs.map(t=>`<div class="ftab ${filterS===t?'on':''}" onclick="filterS='${t}';renderMis()">${tl[t]}</div>`).join('');const q=($('mq')?.value||'').toLowerCase();const list=db.missions.filter(m=>(filterS==='tout'||m.stat===filterS)&&(!q||m.tit.toLowerCase().includes(q)||(m.numMission||'').includes(q)||m.itvs.some(i=>i.st.toLowerCase().includes(q))));$('mlist').innerHTML=list.length?list.map(m=>card(m)).join(''):'<div class="empty"><div class="ei">📋</div><div class="et">Aucune mission</div></div>'}
+
+// ST
+function renderST(){const q=($('stq')?.value||'').toLowerCase();const list=db.soustraitants.filter(s=>!q||s.nom.toLowerCase().includes(q)||s.soc.toLowerCase().includes(q));$('stlist').innerHTML=list.length?list.map(st=>{const nb=db.missions.filter(m=>m.itvs.some(i=>i.st===st.nom)).length;return`<div class="stc"><div class="stc-top"><div class="sta" style="background:${st.col};width:42px;height:42px;font-size:13px">${init(st.nom)}</div><div style="flex:1"><div style="font-size:13px;font-weight:700">${st.nom}</div><div style="font-size:11px;color:var(--acc)">🏢 ${st.soc}</div><div style="font-size:11px;color:var(--mut)">🔧 ${st.spec} · ${nb} mission(s)</div></div></div><div class="stc-actions"><button class="btn w" onclick="window.open('https://wa.me/${clean(st.tel)}','_blank')">💬 WhatsApp</button><button class="btn d" style="flex:none;width:44px" onclick="supprimerST('${st.nom}')">🗑️</button></div></div>`}).join(''):'<div class="empty"><div class="ei">👥</div><div class="et">Aucun sous-traitant</div></div>'}
+function ajouterST(){const soc=$('st-soc').value.trim(),nom=$('st-nom').value.trim(),spec=$('st-spec').value.trim(),tel=$('st-tel').value.trim(),pin=String($('st-pin').value).trim();if(!nom||!tel){toast('⚠️ Nom et téléphone requis');return}if(pin.length!==4||isNaN(pin)){toast('⚠️ PIN doit être 4 chiffres');return}emit('st:create',{nom,soc:soc||'—',spec:spec||'—',tel,pin});['st-soc','st-nom','st-spec','st-tel','st-pin'].forEach(id=>$(id).value='');closeModal('m-st');toast('✅ Sous-traitant ajouté')}
+function supprimerST(nom){confirm2('Supprimer','Supprimer '+nom+' ?',()=>{emit('st:delete',{nom});toast('🗑️ Supprimé')})}
+
+// COMPTA
+function renderCpt(){const pend=db.missions.filter(m=>['a_valider','compta'].includes(m.stat));const paid=db.missions.filter(m=>m.stat==='payee');const totP=pend.reduce((a,m)=>a+totalTTC(m),0);const totD=paid.reduce((a,m)=>a+totalTTC(m),0);$('csumm').innerHTML=`<div class="scard"><div class="snum a">${totP.toLocaleString('fr-FR')} €</div><div class="slbl">En attente TTC</div></div><div class="scard"><div class="snum g">${totD.toLocaleString('fr-FR')} €</div><div class="slbl">Payé TTC</div></div>`;$('cpend').innerHTML=pend.length?'<div class="sec">💳 À payer</div>'+pend.map(m=>`<div class="pc">${numBadges(m)}<div style="font-size:12px;font-weight:700;margin-bottom:8px">🔧 ${m.tit}</div>${m.itvs.map(itv=>{const s=stOf(itv.st);const tv=ttc(itv.mnt,itv.tva);return`<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><div class="sta" style="width:28px;height:28px;font-size:9px;background:${s.col}">${init(itv.st)}</div><div style="flex:1"><div style="font-size:12px;font-weight:600">${itv.st}</div><div style="font-size:10px;color:var(--mut)">${itv.mnt.toLocaleString('fr-FR')} € HT</div></div><div style="font-size:13px;font-weight:800;color:var(--amb)">${tv.toLocaleString('fr-FR')} €</div></div>`}).join('')}<div class="divider"></div><div style="display:flex;justify-content:space-between;margin-bottom:10px"><span style="font-size:11px;color:var(--mut)">Total TTC</span><span style="font-size:14px;font-weight:800;color:var(--amb)">${totalTTC(m).toLocaleString('fr-FR')} €</span></div>${m.stat==='a_valider'?`<button class="btn" style="background:rgba(245,158,11,.1);color:var(--amb);border:1px solid rgba(245,158,11,.2);margin-bottom:8px;font-size:12px;padding:10px" onclick="valider('${m.id}')">✅ Valider</button>`:''}<button class="btn p" style="font-size:12px;padding:10px" onclick="payer('${m.id}')">💳 Payer</button></div>`).join(''):'';$('cpaid').innerHTML=paid.length?'<div class="sec">✅ Payées</div>'+paid.map(m=>`<div class="pc">${numBadges(m)}<div style="font-size:12px;font-weight:700;margin-bottom:6px">🔧 ${m.tit}</div>${m.itvs.map(i=>{const s=stOf(i.st);return`<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><div class="sta" style="width:24px;height:24px;font-size:8px;background:${s.col}">${init(i.st)}</div><div style="flex:1;font-size:11px">${i.st}</div><div style="font-size:12px;font-weight:700;color:var(--acc)">${ttc(i.mnt,i.tva).toLocaleString('fr-FR')} € ✓</div></div>`}).join('')}</div>`).join(''):''}
+
+// DASHBOARD
+function renderDash(){const mois=['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];const now=new Date();const ca=[];for(let i=5;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);const tot=db.missions.filter(m=>m.stat==='payee'&&m.fin&&new Date(m.fin).getMonth()===d.getMonth()&&new Date(m.fin).getFullYear()===d.getFullYear()).reduce((a,m)=>a+totalHT(m),0);ca.push({lbl:mois[d.getMonth()],val:tot})}const maxCA=Math.max(...ca.map(c=>c.val),1);const totP=db.missions.filter(m=>m.stat==='payee').reduce((a,m)=>a+totalHT(m),0);const cliNP=db.missions.filter(m=>m.paystat==='attente'||m.paystat==='partiel').length;$('dash-content').innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px"><div class="scard"><div class="snum">${db.missions.length}</div><div class="slbl">Missions</div></div><div class="scard"><div class="snum r">${db.missions.filter(isLate).length}</div><div class="slbl">En retard</div></div><div class="scard"><div class="snum g">${totP.toLocaleString('fr-FR')} €</div><div class="slbl">CA payé HT</div></div><div class="scard"><div class="snum a">${cliNP}</div><div class="slbl">Clients non payés</div></div></div><div class="chart-bar-wrap"><div class="chart-title">📈 CA mensuel HT (6 mois)</div>${ca.map(c=>`<div class="bar-row"><div class="bar-lbl">${c.lbl}</div><div class="bar-bg"><div class="bar-fill" style="width:${c.val?Math.max(c.val/maxCA*100,4):0}%"><span class="bv">${c.val?c.val.toLocaleString('fr-FR')+'€':''}</span></div></div></div>`).join('')}</div>`}
+
+// NOUVELLE MISSION
+function initNewForm(){newItvs=[{st:db.soustraitants[0]?.nom||'',mnt:0,tva:20}];newCks=[];['f-tit','f-adr','f-cod','f-dsc','f-devis','f-devismnt'].forEach(id=>$(id).value='');$('f-paystat').value='attente';const now=new Date();const pad=n=>String(n).padStart(2,'0');const local=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;$('f-deb').value=local;$('f-fin').value=local;$('ck-new').value='';renderCkForm();renderItvForm()}
+function renderCkForm(){$('ck-form-list').innerHTML=newCks.map((c,i)=>`<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><div style="font-size:16px">☐</div><div style="flex:1;font-size:13px">${c}</div><button class="ibtn" style="width:28px;height:28px;font-size:13px;color:var(--red)" onclick="removeCk(${i})">✕</button></div>`).join('')||'<div style="font-size:11px;color:var(--mut);margin-bottom:8px">Aucune tâche</div>'}
+function addCkItem(){const v=$('ck-new').value.trim();if(!v)return;newCks.push(v);$('ck-new').value='';renderCkForm()}
+function removeCk(i){newCks.splice(i,1);renderCkForm()}
+$('ck-new').addEventListener('keydown',e=>{if(e.key==='Enter')addCkItem()});
+function renderItvForm(){if(!db.soustraitants.length){$('itv-form-list').innerHTML='<div style="font-size:12px;color:var(--red);margin-bottom:10px">⚠️ Ajoutez d\'abord des sous-traitants</div>';return}const lbl=['1er','2ème','3ème','4ème','5ème'];$('itv-form-list').innerHTML=newItvs.map((itv,i)=>`<div class="itv-blk"><div class="itv-num">👷 ${lbl[i]||i+1+'ème'}</div>${i>0?`<button class="itv-rm" onclick="removeItvForm(${i})">✕</button>`:''}<div class="fg" style="margin-bottom:10px"><label class="fl">Sous-traitant</label><select class="fi" onchange="updateItvForm(${i},'st',this.value)">${db.soustraitants.map(s=>`<option value="${s.nom}" ${itv.st===s.nom?'selected':''}>${s.nom} – ${s.soc}</option>`).join('')}</select></div><div class="frow"><div class="fg" style="margin-bottom:0"><label class="fl">Montant HT €</label><input type="number" class="fi" value="${itv.mnt}" placeholder="0" oninput="updateItvForm(${i},'mnt',this.value)"></div><div class="fg" style="margin-bottom:0"><label class="fl">TVA</label><select class="fi" onchange="updateItvForm(${i},'tva',this.value)">${[20,10,5.5,0].map(v=>`<option value="${v}" ${itv.tva==v?'selected':''}>${v}%</option>`).join('')}</select></div></div></div>`).join('');$('add-itv-btn').style.display=newItvs.length>=5?'none':'flex'}
+function addItvForm(){if(!db.soustraitants.length){toast('⚠️ Ajoutez des sous-traitants');return}if(newItvs.length>=5)return;newItvs.push({st:db.soustraitants[0].nom,mnt:0,tva:20});renderItvForm()}
+function removeItvForm(i){newItvs.splice(i,1);renderItvForm()}
+function updateItvForm(i,k,v){newItvs[i][k]=k==='mnt'?parseFloat(v)||0:k==='tva'?parseFloat(v):v}
+function creer(saveOnly=false){const tit=$('f-tit').value.trim(),adr=$('f-adr').value.trim();if(!tit||!adr){toast('⚠️ Titre et adresse requis');return}if(!newItvs.length){toast('⚠️ Ajoutez un intervenant');return}const payload={tit,adr,cod:$('f-cod').value.trim(),deb:$('f-deb').value,fin:$('f-fin').value,dsc:$('f-dsc').value.trim()||'—',stat:'envoyee',prog:10,itvs:newItvs.map(i=>({st:i.st,mnt:i.mnt||0,tva:i.tva,paye:false})),checklist:newCks.map(c=>({txt:c,done:false})),devis:$('f-devis').value.trim(),devismnt:parseFloat($('f-devismnt').value)||0,facture:'',paystat:$('f-paystat').value};emit('mission:create',payload);if(saveOnly){toast('💾 Mission enregistrée');goBack();return}$('wa-steps').innerHTML=payload.itvs.map(itv=>{const st=stOf(itv.st);const tv=ttc(itv.mnt,itv.tva);const txt=`📋 MISSION – AMS BAT\n\nBonjour ${itv.st.split(' ')[0]},\nNouvelle mission : ${tit}\n📍 ${adr}${payload.cod?'\n🔑 Code : '+payload.cod:''}\n🗓 Du : ${fdt(payload.deb)}\n🏁 Au : ${fdt(payload.fin)}\n💰 ${itv.mnt.toLocaleString('fr-FR')} € HT · TTC : ${tv.toLocaleString('fr-FR')} €\n\nMerci de confirmer. 🙏\nAMS BAT 🏗️`;const url=`https://wa.me/${clean(st.tel)}?text=${encodeURIComponent(txt)}`;return`<div style="background:var(--s2);border:1px solid var(--br);border-radius:14px;padding:12px;margin-bottom:8px"><div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><div class="sta" style="width:32px;height:32px;font-size:10px;background:${st.col}">${init(itv.st)}</div><div><div style="font-size:12px;font-weight:700">${itv.st}</div><div style="font-size:10px;color:var(--mut)">${tv.toLocaleString('fr-FR')} € TTC</div></div></div><button class="btn w" style="font-size:12px;padding:10px" onclick="window.open('${url}','_blank');this.style.background='#1e5c3a';this.textContent='✅ Envoyé'">💬 Envoyer à ${itv.st.split(' ')[0]}</button></div>`}).join('');openModal('m-wa')}
+
+// DÉTAIL
+function buildDetail(id){const m=db.missions.find(x=>x.id===id);if(!m)return;const s=SL[m.stat]||SL.envoyee;const late=isLate(m);const ht=totalHT(m),tc=totalTTC(m);$('dhero').innerHTML=`<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px"><div style="font-size:15px;font-weight:800;flex:1">${m.tit}</div><span class="badge ${late?'br2':s.c}">${late?'⚠️ Retard':s.l}</span></div>${numBadges(m)}<div class="damt">${ht?ht.toLocaleString('fr-FR')+' €':'—'}</div><div style="font-size:11px;color:var(--mut);margin-bottom:8px">HT · TTC : <strong style="color:var(--acc)">${tc?tc.toLocaleString('fr-FR')+' €':'—'}</strong></div><div class="chips"><div class="chip">🗓 ${fdt(m.deb)}</div><div class="chip">🏁 ${fdt(m.fin)}</div><div class="chip">📍 ${m.adr}</div>${m.cod?`<div class="chip g">🔑 ${m.cod}</div>`:''}${late?'<div class="chip r">⚠️ En retard</div>':''}</div>`;
+$('d-docs').innerHTML=`<div style="background:var(--s2);border:1px solid var(--br);border-radius:16px;padding:14px;margin-bottom:10px">${numBadges(m)}<div style="display:grid;gap:8px;margin-top:8px">${m.devis?`<div style="display:flex;justify-content:space-between"><span style="font-size:11px;color:var(--mut)">N° Devis</span><span style="font-size:12px;font-weight:700;font-family:monospace">${m.devis}</span></div>`:''} ${m.devismnt?`<div style="display:flex;justify-content:space-between"><span style="font-size:11px;color:var(--mut)">Montant devis</span><span style="font-size:12px;font-weight:700">${m.devismnt.toLocaleString('fr-FR')} €</span></div>`:''} ${m.facture?`<div style="display:flex;justify-content:space-between"><span style="font-size:11px;color:var(--mut)">N° Facture</span><span style="font-size:12px;font-weight:700;font-family:monospace">${m.facture}</span></div>`:''}</div><div class="sp8"></div><button class="btn s" style="font-size:12px;padding:10px" onclick="openEditDocs('${m.id}')">✏️ Modifier les documents</button></div>`;
+$('d-ck').innerHTML=(ckTotal(m)?`<div style="font-size:11px;color:var(--mut);margin-bottom:10px">✅ ${ckDone(m)} / ${ckTotal(m)}</div>`:'')+( m.checklist.length?m.checklist.map((c,i)=>`<div class="ck-item" onclick="toggleCk('${m.id}',${i})"><div class="ck-box ${c.done?'done':''}">${c.done?'✓':''}</div><div class="ck-txt ${c.done?'done':''}">${c.txt}</div></div>`).join(''):'<div style="font-size:12px;color:var(--mut)">Aucune tâche</div>');
+$('d-itvs').innerHTML=m.itvs.map((itv,i)=>{const st=stOf(itv.st);const tv=ttc(itv.mnt,itv.tva);const waUrl=`https://wa.me/${clean(st.tel)}?text=${encodeURIComponent(`Bonjour ${itv.st.split(' ')[0]}, AMS BAT – mission ${m.tit}.`)}`;return`<div style="background:var(--s2);border:1px solid var(--br);border-radius:14px;padding:13px;margin-bottom:8px"><div style="display:flex;align-items:center;gap:11px;margin-bottom:10px"><div class="sta" style="background:${st.col};width:40px;height:40px;font-size:12px">${init(itv.st)}</div><div style="flex:1"><div style="font-size:13px;font-weight:700">${itv.st}</div><div style="font-size:11px;color:var(--acc)">🏢 ${st.soc}</div><div style="font-size:11px;color:var(--mut)">${itv.mnt.toLocaleString('fr-FR')} € HT</div></div><div style="text-align:right"><div style="font-size:15px;font-weight:800;color:var(--acc)">${tv.toLocaleString('fr-FR')} €</div><div style="font-size:9px;color:var(--mut)">TTC</div></div></div><div style="display:flex;gap:6px"><button class="btn w" style="font-size:11px;padding:9px" onclick="window.open('${waUrl}','_blank')">💬 WhatsApp</button><button class="btn d" style="font-size:11px;padding:9px;flex:none;width:44px" onclick="retirerITV('${m.id}',${i})">✕</button></div></div>`}).join('')||'<div style="color:var(--mut);font-size:12px">Aucun intervenant</div>';
+const steps=[{l:'Mission créée',d:fd(m.createdAt||m.deb),done:true},{l:'Envoyée',d:fdt(m.deb),done:['en_cours','a_valider','compta','payee'].includes(m.stat)},{l:'En cours',d:'',done:['a_valider','compta','payee'].includes(m.stat),act:m.stat==='en_cours'},{l:'Validation',d:'',done:['compta','payee'].includes(m.stat),act:m.stat==='a_valider'},{l:'Compta',d:'',done:m.stat==='payee',act:m.stat==='compta'},{l:'Payé ✓',d:m.stat==='payee'?'Réglé':'',done:m.stat==='payee'}];
+$('dtl').innerHTML=steps.map((st,i)=>`<div class="ts"><div class="tl-l"><div class="td ${st.done?'d':st.act?'a':''}">${st.done?'✓':st.act?'●':''}</div>${i<steps.length-1?`<div class="tln ${st.done?'d':''}"></div>`:''}</div><div class="tc"><div class="tt" style="color:${st.act?'var(--amb)':st.done?'var(--txt)':'var(--mut)'}">${st.l}</div><div class="td2">${st.d}</div></div></div>`).join('');
+let act='';if(['en_cours','envoyee'].includes(m.stat))act+=`<button class="btn" style="background:rgba(245,158,11,.1);color:var(--amb);border:1px solid rgba(245,158,11,.2);margin-bottom:8px" onclick="setStatut('${m.id}','a_valider')">📋 Passer en validation</button>`;if(m.stat==='a_valider')act+=`<button class="btn p" style="margin-bottom:8px" onclick="valider('${m.id}')">✅ Valider le chantier</button>`;if(m.stat==='compta')act+=`<button class="btn p" style="margin-bottom:8px" onclick="payer('${m.id}')">💳 Payer les intervenants</button>`;if(m.stat!=='payee')act+=`<button class="btn d" onclick="supprimerMission('${m.id}')">🗑️ Supprimer</button>`;$('dact').innerHTML=act;
+$('dfin').innerHTML=`<div style="display:grid;gap:9px">${m.itvs.map(i=>`<div style="display:flex;justify-content:space-between"><span style="font-size:11px;color:var(--mut)">${i.st}</span><span style="font-size:12px;font-weight:600">${i.mnt.toLocaleString('fr-FR')} € HT</span></div>`).join('')}<div class="divider" style="margin:2px 0"></div><div style="display:flex;justify-content:space-between"><span style="font-size:11px;color:var(--mut)">Total HT</span><span style="font-size:12px;font-weight:700">${ht.toLocaleString('fr-FR')} €</span></div><div style="display:flex;justify-content:space-between"><span style="font-size:13px;font-weight:700">Total TTC</span><span style="font-size:15px;font-weight:800;color:var(--acc)">${tc.toLocaleString('fr-FR')} €</span></div></div>`}
+
+function openEditDocs(id){const m=db.missions.find(x=>x.id===id);if(!m)return;editDocsMId=id;$('ed-devis').value=m.devis||'';$('ed-devismnt').value=m.devismnt||'';$('ed-facture').value=m.facture||'';$('ed-paystat').value=m.paystat||'attente';openModal('m-docs')}
+function saveDocs(){emit('mission:docs-update',{id:editDocsMId,devis:$('ed-devis').value.trim(),devismnt:parseFloat($('ed-devismnt').value)||0,facture:$('ed-facture').value.trim(),paystat:$('ed-paystat').value});closeModal('m-docs');toast('💾 Documents mis à jour')}
+
+// INTERVENANT
+function renderIV(t){const st=currentUser.st;const myMis=db.missions.filter(m=>m.itvs.some(i=>i.st===st.nom));if(t==='reglement'){const pend=myMis.filter(m=>!m.itvs.find(i=>i.st===st.nom)?.paye);const paid=myMis.filter(m=>m.itvs.find(i=>i.st===st.nom)?.paye);const tP=pend.reduce((a,m)=>{const i=m.itvs.find(i=>i.st===st.nom);return a+ttc(i.mnt,i.tva)},0);const tD=paid.reduce((a,m)=>{const i=m.itvs.find(i=>i.st===st.nom);return a+ttc(i.mnt,i.tva)},0);$('iv-list').innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px"><div class="scard"><div class="snum a">${tP.toLocaleString('fr-FR')} €</div><div class="slbl">En attente</div></div><div class="scard"><div class="snum g">${tD.toLocaleString('fr-FR')} €</div><div class="slbl">Reçu</div></div></div>${pend.length?'<div class="sec">⏳ En attente</div>'+pend.map(m=>ivCard(m,st)).join(''):''}${paid.length?'<div class="sec">✅ Reçu</div>'+paid.map(m=>ivCard(m,st)).join(''):''}${!pend.length&&!paid.length?'<div class="empty"><div class="ei">💰</div><div class="et">Aucun règlement</div></div>':''}`;return}const list=t==='actives'?myMis.filter(m=>m.stat!=='payee'):myMis.filter(m=>m.stat==='payee');$('iv-list').innerHTML=list.length?list.map(m=>ivCard(m,st)).join(''):`<div class="empty"><div class="ei">${t==='archive'?'📦':'🔨'}</div><div class="et">Aucune mission</div></div>`}
+function ivCard(m,st){const itv=m.itvs.find(i=>i.st===st.nom);if(!itv)return'';const s=SL[m.stat]||SL.envoyee;const tv=ttc(itv.mnt,itv.tva);return`<div class="mc" onclick="goIVDet('${m.id}')"><div class="mc-top"><div><div class="mc-ttl">${m.tit}</div><div style="font-size:10px;font-family:monospace;color:var(--mut)">MIS-${m.numMission||'—'}</div></div><span class="badge ${s.c}">${s.l}</span></div><div class="mc-ft"><span>💰 ${tv.toLocaleString('fr-FR')} € TTC</span><span>🗓 ${fdt(m.deb)}</span><span>🏁 ${fdt(m.fin)}</span>${ckTotal(m)?`<span>✅ ${ckDone(m)}/${ckTotal(m)}</span>`:''}</div></div>`}
+function buildIVDetail(id){const m=db.missions.find(x=>x.id===id);if(!m)return;const st=currentUser.st;const itv=m.itvs.find(i=>i.st===st.nom);if(!itv)return;const tv=ttc(itv.mnt,itv.tva);const s=SL[m.stat]||SL.envoyee;$('ivdhero').innerHTML=`<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px"><div style="font-size:15px;font-weight:800;flex:1">${m.tit}</div><span class="badge ${s.c}">${s.l}</span></div><div style="font-size:10px;font-family:monospace;color:var(--mut);margin-bottom:6px">MIS-${m.numMission||'—'}</div><div class="damt">${tv.toLocaleString('fr-FR')} €</div><div style="font-size:11px;color:var(--mut);margin-bottom:8px">TTC · HT : ${itv.mnt.toLocaleString('fr-FR')} €</div><div class="chips"><div class="chip">🗓 ${fdt(m.deb)}</div><div class="chip">🏁 ${fdt(m.fin)}</div></div>`;$('ivd-ck').innerHTML=m.checklist.length?m.checklist.map(c=>`<div class="ck-item" style="pointer-events:none"><div class="ck-box ${c.done?'done':''}">${c.done?'✓':''}</div><div class="ck-txt ${c.done?'done':''}">${c.txt}</div></div>`).join(''):'<div style="font-size:12px;color:var(--mut)">Aucune tâche</div>';$('ivd-fin').innerHTML=`<div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="font-size:12px;color:var(--mut)">HT</span><span style="font-size:13px;font-weight:700">${itv.mnt.toLocaleString('fr-FR')} €</span></div><div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="font-size:12px;color:var(--mut)">TVA ${itv.tva}%</span><span style="font-size:13px;font-weight:700">${(tv-itv.mnt).toLocaleString('fr-FR')} €</span></div><div class="divider" style="margin:6px 0"></div><div style="display:flex;justify-content:space-between;margin-bottom:10px"><span style="font-size:13px;font-weight:700">TTC</span><span style="font-size:17px;font-weight:800;color:var(--acc)">${tv.toLocaleString('fr-FR')} €</span></div><div style="text-align:center;padding:10px;border-radius:12px;background:${itv.paye?'rgba(37,211,102,.1)':'rgba(245,158,11,.1)'};border:1px solid ${itv.paye?'rgba(37,211,102,.3)':'rgba(245,158,11,.3)'};font-size:13px;font-weight:700;color:${itv.paye?'var(--acc)':'var(--amb)'}">${itv.paye?'✅ Paiement reçu':'⏳ En attente'}</div>`;$('ivd-info').innerHTML=`<div style="display:grid;gap:10px;font-size:12px"><div><span style="color:var(--mut)">📍 Adresse</span><div style="font-weight:600;margin-top:2px">${m.adr}</div></div>${m.cod?`<div><span style="color:var(--mut)">🔑 Code porte</span><div style="font-weight:700;font-size:16px;color:var(--acc);margin-top:2px">${m.cod}</div></div>`:''}<div><span style="color:var(--mut)">📝 Description</span><div style="font-weight:500;margin-top:2px;color:var(--lt)">${m.dsc}</div></div></div>`}
+
+// ACTIONS
+function setStatut(id,s){emit('mission:update',{id,changes:{stat:s,prog:s==='a_valider'?90:40}});toast('✅ Statut mis à jour');buildDetail(id)}
+function valider(id){emit('mission:update',{id,changes:{stat:'compta',prog:95}});toast('✅ Validé')}
+function payer(id){emit('mission:payer',{id});toast('💳 Paiement effectué !')}
+function toggleCk(mId,ckIdx){emit('mission:checklist-toggle',{missionId:mId,ckIdx})}
+function retirerITV(mId,idx){confirm2('Retirer','Retirer cet intervenant ?',()=>{const m=db.missions.find(x=>x.id===mId);if(!m)return;const itvs=[...m.itvs];itvs.splice(idx,1);emit('mission:update',{id:mId,changes:{itvs}});toast('✅ Intervenant retiré')})}
+function supprimerMission(id){confirm2('Supprimer','Action irréversible. Continuer ?',()=>{emit('mission:delete',{id});toast('🗑️ Supprimée');goBack()})}
+</script>
+</body>
+</html>
