@@ -3,31 +3,140 @@ const http=require('http');
 const {Server}=require('socket.io');
 const fs=require('fs');
 const path=require('path');
-const crypto=require('crypto');
+
 const app=express();
 const server=http.createServer(app);
 const io=new Server(server,{cors:{origin:'*'}});
+
 const PORT=process.env.PORT||3000;
-const DB_FILE=path.join(__dirname,'db.json');
-const ACCESS_CODE='AMSBAT2026';
-const COLS=['#128c7e','#3b82f6','#8b5cf6','#f59e0b','#ef4444','#ec4899'];
-function todayStr(){const d=new Date();return d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')}
-function loadDB(){if(!fs.existsSync(DB_FILE)){const i={missions:[],soustraitants:[],counters:{},lastUpdate:Date.now()};fs.writeFileSync(DB_FILE,JSON.stringify(i));return i}return JSON.parse(fs.readFileSync(DB_FILE,'utf8'))}
-function saveDB(d){d.lastUpdate=Date.now();fs.writeFileSync(DB_FILE,JSON.stringify(d,null,2))}
+const FICHIER_DB=path.join(__dirname,'db.json');
+
+function chargerDB(){
+if(!fs.existsSync(FICHIER_DB))return{missions:[],soustraitants:[],personnel:[],users:[
+{id:'u1',nom:'Haimane',role:'Administrateur',pin:'0000',isAdmin:true},
+{id:'u2',nom:'Shanaz',role:'Comptabilité',pin:'1111'},
+{id:'u3',nom:'Fatima Zara',role:'Paiements',pin:'2222'},
+{id:'u4',nom:'Miryem',role:'Coordination',pin:'3333'}
+],config:{accessCode:'AMSBAT2026',nextMis:1,nextItv:1}};
+try{return JSON.parse(fs.readFileSync(FICHIER_DB,'utf8'));}
+catch(e){return{missions:[],soustraitants:[],personnel:[],users:[],config:{accessCode:'AMSBAT2026',nextMis:1,nextItv:1}};}
+}
+
+function sauverDB(d){
+d.derniereMaj=new Date();
+fs.writeFileSync(FICHIER_DB,JSON.stringify(d,null,2));
+}
+
 app.use(express.json());
-app.use(express.static(__dirname));
-io.use((socket,next)=>{socket.handshake.auth.code===ACCESS_CODE?next():next(new Error('Code invalide'))});
+app.use(express.static(path.join(__dirname,'public')));
+
 io.on('connection',(socket)=>{
-console.log('Connecte:',socket.id);
-socket.emit('full-sync',loadDB());
-socket.on('mission:create',(p)=>{const db=loadDB();const k='MIS-'+todayStr();db.counters[k]=(db.counters[k]||0)+1;p.numMission=todayStr()+'-'+String(db.counters[k]).padStart(3,'0');p.id=crypto.randomUUID();p.createdAt=new Date().toISOString();db.missions.unshift(p);saveDB(db);io.emit('full-sync',db)});
-socket.on('mission:update',({id,changes})=>{const db=loadDB();const i=db.missions.findIndex(m=>m.id===id);if(i!==-1){db.missions[i]={...db.missions[i],...changes};saveDB(db);io.emit('full-sync',db)}});
-socket.on('mission:delete',({id})=>{const db=loadDB();db.missions=db.missions.filter(m=>m.id!==id);saveDB(db);io.emit('full-sync',db)});
-socket.on('mission:checklist-toggle',({missionId,ckIdx})=>{const db=loadDB();const m=db.missions.find(m=>m.id===missionId);if(m&&m.checklist[ckIdx]){m.checklist[ckIdx].done=!m.checklist[ckIdx].done;const done=m.checklist.filter(c=>c.done).length;if(m.checklist.length>0)m.prog=Math.min(90,Math.round(done/m.checklist.length*80)+10);saveDB(db);io.emit('full-sync',db)}});
-socket.on('mission:payer',({id})=>{const db=loadDB();const m=db.missions.find(m=>m.id===id);if(m){m.stat='payee';m.prog=100;m.itvs.forEach(i=>i.paye=true);const k='FAC-'+todayStr();db.counters[k]=(db.counters[k]||0)+1;m.facture=todayStr()+'-'+String(db.counters[k]).padStart(3,'0');m.paystat='paye';saveDB(db);io.emit('full-sync',db)}});
-socket.on('mission:docs-update',({id,devis,devismnt,facture,paystat})=>{const db=loadDB();const m=db.missions.find(m=>m.id===id);if(m){if(devis!==undefined)m.devis=devis;if(devismnt!==undefined)m.devismnt=devismnt;if(facture!==undefined){if(!facture){const k='FAC-'+todayStr();db.counters[k]=(db.counters[k]||0)+1;m.facture=todayStr()+'-'+String(db.counters[k]).padStart(3,'0')}else{m.facture=facture}}if(paystat!==undefined)m.paystat=paystat;saveDB(db);io.emit('full-sync',db)}});
-socket.on('st:create',(p)=>{const db=loadDB();p.id=crypto.randomUUID();p.col=COLS[db.soustraitants.length%COLS.length];db.soustraitants.push(p);saveDB(db);io.emit('full-sync',db)});
-socket.on('st:delete',({nom})=>{const db=loadDB();db.soustraitants=db.soustraitants.filter(s=>s.nom!==nom);saveDB(db);io.emit('full-sync',db)});
-socket.on('disconnect',()=>console.log('Deconnecte:',socket.id));
+console.log('Connecté:',socket.id);
+const db=chargerDB();
+socket.emit('init',db);
+
+socket.on('mission:add',(m)=>{
+const db=chargerDB();
+if(!db.missions)db.missions=[];
+db.missions.push(m);
+if(!db.config)db.config={nextMis:1,nextItv:1};
+db.config.nextMis=(db.config.nextMis||1)+1;
+sauverDB(db);
+io.emit('update',db);
 });
-server.listen(PORT,()=>console.log('AMS BAT demarre sur http://localhost:'+PORT));
+
+socket.on('mission:update',({id,changes})=>{
+const db=chargerDB();
+const m=db.missions.find(x=>x.id===id);
+if(m)Object.assign(m,changes);
+sauverDB(db);
+io.emit('update',db);
+});
+
+socket.on('mission:add-itv',({mId,itv})=>{
+const db=chargerDB();
+const m=db.missions.find(x=>x.id===mId);
+if(m){
+if(!m.itvs)m.itvs=[];
+m.itvs.push(itv);
+if(!db.config)db.config={nextItv:1};
+db.config.nextItv=(db.config.nextItv||1)+1;
+}
+sauverDB(db);
+io.emit('update',db);
+});
+
+socket.on('mission:add-ck',({mId,txt})=>{
+const db=chargerDB();
+const m=db.missions.find(x=>x.id===mId);
+if(m){if(!m.checklist)m.checklist=[];m.checklist.push({txt,done:false});}
+sauverDB(db);
+io.emit('update',db);
+});
+
+socket.on('mission:toggle-ck',({mId,idx})=>{
+const db=chargerDB();
+const m=db.missions.find(x=>x.id===mId);
+if(m&&m.checklist&&m.checklist[idx])m.checklist[idx].done=!m.checklist[idx].done;
+sauverDB(db);
+io.emit('update',db);
+});
+
+socket.on('equipe:add',({type,data})=>{
+const db=chargerDB();
+if(type==='st'){
+if(!db.soustraitants)db.soustraitants=[];
+db.soustraitants.push(data);
+}else if(type==='per'){
+if(!db.personnel)db.personnel=[];
+db.personnel.push(data);
+}
+sauverDB(db);
+io.emit('update',db);
+});
+
+socket.on('equipe:delete',({id,type})=>{
+const db=chargerDB();
+if(type==='st')db.soustraitants=db.soustraitants.filter(x=>x.id!==id);
+else if(type==='per')db.personnel=db.personnel.filter(x=>x.id!==id);
+sauverDB(db);
+io.emit('update',db);
+});
+
+socket.on('user:add',(u)=>{
+const db=chargerDB();
+if(!db.users)db.users=[];
+db.users.push(u);
+sauverDB(db);
+io.emit('update',db);
+});
+
+socket.on('user:update',({id,pin})=>{
+const db=chargerDB();
+const u=db.users.find(x=>x.id===id);
+if(u)u.pin=pin;
+sauverDB(db);
+io.emit('update',db);
+});
+
+socket.on('user:delete',({id})=>{
+const db=chargerDB();
+db.users=db.users.filter(x=>x.id!==id);
+sauverDB(db);
+io.emit('update',db);
+});
+
+socket.on('config:update',(changes)=>{
+const db=chargerDB();
+if(!db.config)db.config={};
+Object.assign(db.config,changes);
+sauverDB(db);
+io.emit('update',db);
+});
+
+socket.on('disconnect',()=>{
+console.log('Déconnecté:',socket.id);
+});
+});
+
+server.listen(PORT,()=>console.log('AMS BAT démarre sur http://localhost:'+PORT));
