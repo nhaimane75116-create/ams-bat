@@ -26,27 +26,19 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:-apple-sy
 .scard{background:var(--s2);border:1px solid var(--br);border-radius:14px;padding:12px 8px;text-align:center}
 .snum{font-size:20px;font-weight:800}.snum.a{color:var(--amb)}.snum.r{color:var(--red)}
 .slbl{font-size:9px;color:var(--mut);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
-.sec{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin:12px 0 8px}
-.num-row{display:flex;gap:5px;flex-wrap:wrap;margin:4px 0 8px}
-.nbadge{font-size:9px;font-weight:800;font-family:monospace;border-radius:6px;padding:2px 8px;border:1px solid}
-.nbadge.mis{border-color:rgba(59,130,246,.4);color:var(--blu);background:rgba(59,130,246,.08)}
-.nbadge.dev{border-color:rgba(139,92,246,.4);color:var(--pur);background:rgba(139,92,246,.08)}
-.nbadge.fac{border-color:rgba(37,211,102,.4);color:var(--acc);background:rgba(37,211,102,.08)}
-.nbadge.att{border-color:rgba(245,158,11,.4);color:var(--amb);background:rgba(245,158,11,.08)}
 .mc{background:var(--s2);border:1px solid var(--br);border-radius:16px;padding:13px;margin-bottom:9px;cursor:pointer;transition:transform .15s;position:relative;overflow:hidden}
 .mc:active{transform:scale(.98)}
-.mc.hl{border-color:rgba(139,92,246,.5);background:rgba(139,92,246,.08)}
 .mc-hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
 .mc-title{font-size:14px;font-weight:700}
 .mc-adr{font-size:11px;color:var(--mut);margin-top:2px}
 .mc-foot{display:flex;gap:6px;align-items:center;margin-top:8px;flex-wrap:wrap}
 .tag{font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;border:1px solid}
-.tag.s-av{color:#60a5fa;border-color:rgba(96,165,250,.3);background:rgba(96,165,250,.08)}
 .tag.s-ec{color:#34d399;border-color:rgba(52,211,153,.3);background:rgba(52,211,153,.08)}
 .tag.s-va{color:#fbbf24;border-color:rgba(251,191,36,.3);background:rgba(251,191,36,.08)}
 .tag.s-co{color:#a78bfa;border-color:rgba(167,139,250,.3);background:rgba(167,139,250,.08)}
 .tag.s-pa{color:#25d366;border-color:rgba(37,211,102,.3);background:rgba(37,211,102,.08)}
 .tag.s-an{color:#f87171;border-color:rgba(248,113,113,.3);background:rgba(248,113,113,.08)}
+.tag.s-av{color:#60a5fa;border-color:rgba(96,165,250,.3);background:rgba(96,165,250,.08)}
 .prog-bar{height:3px;background:var(--br);border-radius:2px;margin-top:8px;overflow:hidden}
 .prog-fill{height:100%;background:linear-gradient(90deg,var(--acc2),var(--acc));border-radius:2px;transition:width .3s}
 .btn{display:flex;align-items:center;justify-content:center;gap:6px;padding:13px;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;border:none;transition:all .15s;width:100%}
@@ -67,15 +59,19 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:-apple-sy
 .inp{width:100%;background:var(--s2);border:1px solid var(--br);border-radius:12px;padding:12px;color:var(--txt);font-size:14px;margin-bottom:10px}
 .inp:focus{outline:none;border-color:var(--acc)}
 select.inp option{background:var(--s2)}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .pin-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}
 .pin-btn{background:var(--s2);border:1px solid var(--br);border-radius:14px;padding:16px;font-size:20px;font-weight:700;cursor:pointer;text-align:center}
 .pin-dots{display:flex;justify-content:center;gap:10px;margin:20px 0}
 .pin-dot{width:14px;height:14px;border-radius:50%;background:var(--br);transition:background .2s}
 .pin-dot.on{background:var(--acc)}
+.user-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.user-card{background:var(--s2);border:1px solid var(--br);border-radius:14px;padding:16px;text-align:center;cursor:pointer;transition:all .2s}
+.user-card:active{transform:scale(.96)}
+.user-card.sel{border-color:var(--acc);background:rgba(37,211,102,.1)}
+.user-ava{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--acc2),var(--acc));display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;margin:0 auto 8px}
+.user-name{font-size:14px;font-weight:700}
+.user-role{font-size:10px;color:var(--mut);margin-top:3px}
 .login-wrap{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;gap:16px}
-.logo{font-size:60px;margin-bottom:8px}
-.app-name{font-size:28px;font-weight:900;letter-spacing:-1px}
 .code-inp{width:100%;background:var(--s2);border:2px solid var(--br);border-radius:16px;padding:16px;text-align:center;font-size:18px;font-weight:700;color:var(--txt);letter-spacing:4px}
 .code-inp:focus{outline:none;border-color:var(--acc)}
 .toast-c{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:6px;pointer-events:none}
@@ -88,7 +84,7 @@ select.inp option{background:var(--s2)}
 .ck-item{display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--s2);border-radius:10px;cursor:pointer}
 .ck-box{width:18px;height:18px;border-radius:5px;border:2px solid var(--br);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
 .ck-box.done{background:var(--acc);border-color:var(--acc)}
-.tab-row{display:flex;gap:6px;margin-bottom:12px}
+.tab-row{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
 .tab{padding:7px 14px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;background:var(--s2);color:var(--mut);border:1px solid var(--br)}
 .tab.act{background:var(--acc);color:#000;border-color:var(--acc)}
 .met-section{margin-bottom:16px}
@@ -99,6 +95,7 @@ select.inp option{background:var(--s2)}
 .contact-name{font-size:14px;font-weight:700}
 .contact-role{font-size:11px;color:var(--mut);margin-top:2px}
 .contact-tel{font-size:12px;color:var(--acc);margin-top:3px}
+.sec{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin:12px 0 8px}
 </style>
 </head>
 <body>
@@ -108,18 +105,27 @@ select.inp option{background:var(--s2)}
 <!-- LOGIN -->
 <div id="s-login" style="height:100%;display:flex;flex-direction:column">
 <div class="login-wrap">
-<div class="logo">🏗️</div>
-<div class="app-name">AMS BAT</div>
+<div style="font-size:60px">🏗️</div>
+<div style="font-size:28px;font-weight:900;letter-spacing:-1px">AMS BAT</div>
 <p style="color:var(--mut);font-size:13px;margin-top:-8px">Entrez le code d'accès partagé</p>
 <input id="access-inp" class="code-inp" placeholder="CODE D'ACCÈS..." maxlength="20">
-<button class="btn pri" onclick="checkAccess()" style="margin-top:8px">Accéder →</button>
+<button class="btn pri" onclick="checkAccess()">Accéder →</button>
 <p style="color:var(--mut);font-size:11px">Code fourni par votre gestionnaire</p>
 </div>
 <div style="padding:20px;text-align:center;border-top:1px solid var(--br)">
-<div class="logo" style="font-size:30px">🏗️</div>
-<div style="font-size:14px;font-weight:700;margin-top:4px">AMS BAT</div>
+<div style="font-size:14px;font-weight:700">AMS BAT</div>
 <div style="font-size:11px;color:var(--acc);margin-top:4px">● Connecté</div>
-<div style="margin-top:8px;font-size:12px;color:var(--mut)">Gestionnaire ? <span style="color:var(--acc);cursor:pointer;font-weight:700" onclick="showPIN()">Accès administrateur</span></div>
+<div style="margin-top:8px;font-size:12px;color:var(--mut)">Gestionnaire ? <span style="color:var(--acc);cursor:pointer;font-weight:700" onclick="showUserSelect()">Accès administrateur</span></div>
+</div>
+</div>
+
+<!-- CHOIX UTILISATEUR -->
+<div id="s-userselect" class="scr" style="align-items:center;justify-content:center;padding:30px">
+<div style="text-align:center;width:100%">
+<div style="font-size:22px;font-weight:900;margin-bottom:4px">Qui êtes-vous ?</div>
+<div style="font-size:13px;color:var(--mut);margin-bottom:8px">Sélectionnez votre nom</div>
+<div class="user-grid" id="user-grid"></div>
+<button class="btn sec" style="margin-top:8px" onclick="showScreen('login')">← Retour</button>
 </div>
 </div>
 
@@ -127,9 +133,9 @@ select.inp option{background:var(--s2)}
 <div id="s-pin" class="scr" style="align-items:center;justify-content:center;padding:30px">
 <div style="text-align:center;width:100%">
 <div style="font-size:13px;color:var(--mut);margin-bottom:4px" id="pin-time"></div>
-<div style="font-size:11px;color:var(--acc);margin-bottom:8px" id="pin-user-lbl"></div>
-<div style="font-size:28px;font-weight:900;margin-bottom:4px">PIN</div>
-<div style="font-size:13px;color:var(--mut);margin-bottom:16px" id="pin-name-lbl">Votre code PIN à 4 chiffres</div>
+<div id="pin-user-ava" style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--acc2),var(--acc));display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;margin:0 auto 8px"></div>
+<div style="font-size:22px;font-weight:900;margin-bottom:4px" id="pin-name-lbl"></div>
+<div style="font-size:13px;color:var(--mut);margin-bottom:8px">Code PIN à 4 chiffres</div>
 <div class="pin-dots" id="pin-dots">
 <div class="pin-dot" id="pd0"></div><div class="pin-dot" id="pd1"></div>
 <div class="pin-dot" id="pd2"></div><div class="pin-dot" id="pd3"></div>
@@ -138,9 +144,9 @@ select.inp option{background:var(--s2)}
 <div class="pin-btn" onclick="pinKey('1')">1</div><div class="pin-btn" onclick="pinKey('2')">2</div><div class="pin-btn" onclick="pinKey('3')">3</div>
 <div class="pin-btn" onclick="pinKey('4')">4</div><div class="pin-btn" onclick="pinKey('5')">5</div><div class="pin-btn" onclick="pinKey('6')">6</div>
 <div class="pin-btn" onclick="pinKey('7')">7</div><div class="pin-btn" onclick="pinKey('8')">8</div><div class="pin-btn" onclick="pinKey('9')">9</div>
-<div class="pin-btn" onclick="pinKey('back')" style="font-size:14px">⌫</div><div class="pin-btn" onclick="pinKey('0')">0</div><div class="pin-btn" onclick="pinKey('back')" style="font-size:14px">⌫</div>
+<div class="pin-btn" onclick="pinKey('back')">⌫</div><div class="pin-btn" onclick="pinKey('0')">0</div><div class="pin-btn" onclick="pinKey('back')">⌫</div>
 </div>
-<div id="pin-sous-list" style="margin-top:16px;width:100%"></div>
+<button class="btn sec" style="margin-top:8px" onclick="showUserSelect()">← Changer</button>
 </div>
 </div>
 
@@ -160,9 +166,7 @@ select.inp option{background:var(--s2)}
 <!-- MISSIONS -->
 <div id="s-missions" class="scr">
 <div class="sb"><span>MISSIONS</span><button class="ibtn" onclick="showAddMission()">＋</button></div>
-<div style="padding:0 16px 8px;flex-shrink:0">
-<div class="tab-row" id="mis-tabs"></div>
-</div>
+<div style="padding:0 16px 8px;flex-shrink:0"><div class="tab-row" id="mis-tabs"></div></div>
 <div class="scroll"><div class="pad" id="mis-list"></div></div>
 </div>
 
@@ -176,7 +180,7 @@ select.inp option{background:var(--s2)}
 </div>
 </div>
 <div class="scroll"><div class="pad" id="equipe-list"></div></div>
-<button class="fab" id="fab-equipe" onclick="showAddEquipe()">＋</button>
+<button class="fab" onclick="showAddEquipe()">＋</button>
 </div>
 
 <!-- COMPTA -->
@@ -191,13 +195,9 @@ select.inp option{background:var(--s2)}
 <div class="scroll"><div class="pad" id="bord-content"></div></div>
 </div>
 
-<!-- DETAIL MISSION -->
+<!-- DETAIL -->
 <div id="s-detail" class="scr">
-<div class="sb">
-<button class="ibtn" onclick="goBack()">←</button>
-<span>MISSION</span>
-<button class="ibtn" id="btn-edit-mis" onclick="editMission()">✏️</button>
-</div>
+<div class="sb"><button class="ibtn" onclick="goBack()">←</button><span>MISSION</span><div style="width:36px"></div></div>
 <div class="scroll"><div class="pad" id="detail-content"></div></div>
 </div>
 
@@ -225,9 +225,8 @@ let db={missions:[],soustraitants:[],personnel:[],users:[
 {id:'u3',nom:'Fatima Zara',role:'Paiements',pin:'2222'},
 {id:'u4',nom:'Miryem',role:'Coordination',pin:'3333'}
 ],config:{accessCode:'AMSBAT2026',nextMis:1,nextItv:1}};
-let currentUser=null,currentScreen='login',pinBuffer='',pinTarget='admin',teamTab='st',misFilter='all';
+let currentUser=null,currentScreen='login',pinBuffer='',teamTab='st',misFilter='all',selectedUser=null;
 
-// ══ SOCKET ══
 socket.on('init',d=>{if(d){db={...db,...d};if(!db.users||!db.users.length)db.users=[
 {id:'u1',nom:'Haimane',role:'Administrateur',pin:'0000',isAdmin:true},
 {id:'u2',nom:'Shanaz',role:'Comptabilité',pin:'1111'},
@@ -237,75 +236,88 @@ socket.on('init',d=>{if(d){db={...db,...d};if(!db.users||!db.users.length)db.use
 socket.on('update',d=>{db={...db,...d};refresh()});
 function emit(ev,data){socket.emit(ev,data)}
 
-// ══ AUTH ══
 function checkAccess(){
 const v=document.getElementById('access-inp').value.trim().toUpperCase();
-if(v===db.config.accessCode||v==='AMSBAT2026'){showPIN();return;}
+if(v===(db.config?.accessCode||'AMSBAT2026').toUpperCase()){showUserSelect();return;}
 toast('❌ Code incorrect');
 }
-function showPIN(){
-pinTarget='admin';pinBuffer='';updateDots();
-document.getElementById('pin-user-lbl').textContent='';
-document.getElementById('pin-name-lbl').textContent='Votre code PIN à 4 chiffres';
-document.getElementById('pin-sous-list').innerHTML='';
+
+function showUserSelect(){
+document.getElementById('user-grid').innerHTML=db.users.map(u=>`
+<div class="user-card" onclick="selectUser('${u.id}')">
+<div class="user-ava">${u.nom[0]}</div>
+<div class="user-name">${u.nom}</div>
+<div class="user-role">${u.role}</div>
+</div>`).join('');
+showScreen('userselect');
+}
+
+function selectUser(id){
+selectedUser=db.users.find(u=>u.id===id);
+if(!selectedUser)return;
+pinBuffer='';updateDots();
+document.getElementById('pin-name-lbl').textContent=selectedUser.nom;
+document.getElementById('pin-user-ava').textContent=selectedUser.nom[0];
 showScreen('pin');
 }
+
 function pinKey(k){
 if(k==='back'){pinBuffer=pinBuffer.slice(0,-1);}
 else if(pinBuffer.length<4){pinBuffer+=k;}
 updateDots();
 if(pinBuffer.length===4)setTimeout(checkPIN,200);
 }
-function updateDots(){
-for(let i=0;i<4;i++)document.getElementById('pd'+i).classList.toggle('on',i<pinBuffer.length);
-}
+function updateDots(){for(let i=0;i<4;i++)document.getElementById('pd'+i).classList.toggle('on',i<pinBuffer.length);}
+
 function checkPIN(){
-const u=db.users.find(x=>x.pin===pinBuffer);
-if(u){currentUser=u;toast('✅ Bonjour '+u.nom);showScreen('home');refresh();}
-else{toast('❌ PIN incorrect');pinBuffer='';updateDots();}
+if(!selectedUser){toast('❌ Erreur');return;}
+if(pinBuffer===selectedUser.pin){
+currentUser=selectedUser;
+toast('✅ Bonjour '+currentUser.nom);
+showScreen('home');refresh();
+}else{toast('❌ PIN incorrect');pinBuffer='';updateDots();}
 }
 
-// ══ NAV ══
 function showScreen(id){
-document.querySelectorAll('.scr,[id^="s-"]').forEach(e=>{
-if(e.id==='s-login'){e.style.display=id==='login'?'flex':'none';}
-else{e.classList.toggle('on',e.id==='s-'+id);}
-});
-document.getElementById('main-nav').style.display=id==='login'||id==='pin'?'none':'flex';
+document.querySelectorAll('.scr').forEach(e=>e.classList.remove('on'));
+const s=document.getElementById('s-'+id);if(s)s.classList.add('on');
+const loginEl=document.getElementById('s-login');
+if(loginEl)loginEl.style.display=id==='login'?'flex':'none';
+const hideNav=['login','pin','userselect'];
+document.getElementById('main-nav').style.display=hideNav.includes(id)?'none':'flex';
 currentScreen=id;
 document.querySelectorAll('.nitem').forEach(n=>n.classList.toggle('act',n.id==='n-'+id));
 }
+
 function goTo(id){showScreen(id);refresh();}
 function goBack(){goTo('missions');}
 
-// ══ REFRESH ══
 function refresh(){
+updateClock();
 if(currentScreen==='home')renderHome();
 else if(currentScreen==='missions')renderMissions();
 else if(currentScreen==='equipes')renderEquipes();
 else if(currentScreen==='compta')renderCompta();
 else if(currentScreen==='bord')renderBord();
-updateClock();
 }
+
 function updateClock(){
 const now=new Date();
 const t=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
-const els=['h-time','pin-time'];els.forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=t;});
+const e=document.getElementById('h-time');if(e)e.textContent=t;
+const pt=document.getElementById('pin-time');if(pt)pt.textContent=t;
 if(currentUser){
-const e=document.getElementById('h-user');if(e)e.textContent=currentUser.nom+' · '+currentUser.role;
-const a=document.getElementById('h-ava');if(a)a.textContent=currentUser.nom[0];
-const s=document.getElementById('h-sub');if(s)s.textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
+const eu=document.getElementById('h-user');if(eu)eu.textContent=currentUser.nom+' · '+currentUser.role;
+const ea=document.getElementById('h-ava');if(ea)ea.textContent=currentUser.nom[0];
+const es=document.getElementById('h-sub');if(es)es.textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
 }
 }
 setInterval(updateClock,60000);
 
-// ══ HOME ══
 function renderHome(){
 const mis=db.missions||[];
-const enCours=mis.filter(m=>m.stat==='en_cours').length;
 const aValider=mis.filter(m=>m.stat==='a_valider').length;
 const enRetard=mis.filter(m=>m.stat==='en_retard').length;
-const payees=mis.filter(m=>m.stat==='paye').length;
 document.getElementById('stat-grid').innerHTML=`
 <div class="scard"><div class="snum">${mis.length}</div><div class="slbl">Total</div></div>
 <div class="scard"><div class="snum a">${aValider}</div><div class="slbl">À valider</div></div>
@@ -318,11 +330,10 @@ ${recent.map(m=>`<div class="mc" onclick="openDetail('${m.id}')">
 <span class="tag ${statClass(m.stat)}">${statLabel(m.stat)}</span></div>
 <div class="prog-bar"><div class="prog-fill" style="width:${m.prog||0}%"></div></div>
 </div>`).join('')}
-${currentUser&&currentUser.isAdmin?`<div class="sec" style="margin-top:16px">Administration</div>
+${currentUser?.isAdmin?`<div class="sec" style="margin-top:16px">Administration</div>
 <div class="mc" onclick="showAdmin()"><div class="mc-hdr"><div class="mc-title">⚙️ Paramètres administrateur</div></div></div>`:''}`;
 }
 
-// ══ MISSIONS ══
 function renderMissions(){
 const tabs=[{k:'all',l:'Toutes'},{k:'en_cours',l:'En cours'},{k:'a_valider',l:'À valider'},{k:'paye',l:'Payées'},{k:'annule',l:'Annulées'}];
 document.getElementById('mis-tabs').innerHTML=tabs.map(t=>`<div class="tab ${misFilter===t.k?'act':''}" onclick="misFilter='${t.k}';renderMissions()">${t.l}</div>`).join('');
@@ -330,23 +341,21 @@ let mis=db.missions||[];
 if(misFilter!=='all')mis=mis.filter(m=>m.stat===misFilter);
 document.getElementById('mis-list').innerHTML=mis.length?mis.map(m=>`
 <div class="mc" onclick="openDetail('${m.id}')">
-<div class="mc-hdr">
-<div><div class="mc-title">${m.num?'<span class="nbadge mis">'+m.num+'</span> ':''} ${m.titre}</div>
+<div class="mc-hdr"><div>
+<div class="mc-title">${m.num?`<span style="font-size:9px;color:var(--blu)">${m.num}</span> `:''} ${m.titre}</div>
 <div class="mc-adr">${m.adresse||''}</div></div>
-<span class="tag ${statClass(m.stat)}">${statLabel(m.stat)}</span>
-</div>
-<div class="mc-foot">${(m.itvs||[]).length?`<span style="font-size:11px;color:var(--mut)">${m.itvs.length} intervenant(s)</span>`:''}</div>
+<span class="tag ${statClass(m.stat)}">${statLabel(m.stat)}</span></div>
 <div class="prog-bar"><div class="prog-fill" style="width:${m.prog||0}%"></div></div>
 </div>`).join(''):'<p style="color:var(--mut);text-align:center;padding:30px">Aucune mission</p>';
 }
 
-// ══ EQUIPES ══
 function switchTeamTab(t){
 teamTab=t;
 document.getElementById('tab-st').classList.toggle('act',t==='st');
 document.getElementById('tab-per').classList.toggle('act',t==='per');
 renderEquipes();
 }
+
 function renderEquipes(){
 const el=document.getElementById('equipe-list');
 if(teamTab==='st'){
@@ -354,45 +363,36 @@ const sts=db.soustraitants||[];
 const byMet={};
 sts.forEach(s=>{const m=s.metier||'Autre';if(!byMet[m])byMet[m]=[];byMet[m].push(s);});
 el.innerHTML=sts.length?Object.entries(byMet).map(([met,list])=>`
-<div class="met-section">
-<div class="met-title">🔧 ${met}</div>
+<div class="met-section"><div class="met-title">🔧 ${met}</div>
 ${list.map(s=>`<div class="contact-card">
 <div class="contact-ava">${s.nom[0]}</div>
-<div class="contact-info">
-<div class="contact-name">${s.nom}</div>
+<div class="contact-info"><div class="contact-name">${s.nom}</div>
 <div class="contact-role">${s.metier||''} ${s.entreprise?'· '+s.entreprise:''}</div>
-<div class="contact-tel">${s.tel||''}</div>
-</div>
+<div class="contact-tel">${s.tel||''}</div></div>
 <div style="display:flex;gap:6px">
 ${s.tel?`<div class="ibtn" onclick="window.location='tel:${s.tel}'">📞</div>`:''}
 <div class="ibtn" onclick="deleteEquipe('${s.id}','st')">🗑️</div>
-</div>
-</div>`).join('')}
-</div>`).join(''):'<p style="color:var(--mut);text-align:center;padding:30px">Aucun sous-traitant</p>';
+</div></div>`).join('')}</div>`).join('')
+:'<p style="color:var(--mut);text-align:center;padding:30px">Aucun sous-traitant<br><small>Appuyez sur + pour ajouter</small></p>';
 }else{
 const pers=db.personnel||[];
 const byPoste={};
 pers.forEach(p=>{const pos=p.poste||'Autre';if(!byPoste[pos])byPoste[pos]=[];byPoste[pos].push(p);});
 el.innerHTML=pers.length?Object.entries(byPoste).map(([poste,list])=>`
-<div class="met-section">
-<div class="met-title">👔 ${poste}</div>
+<div class="met-section"><div class="met-title">👔 ${poste}</div>
 ${list.map(p=>`<div class="contact-card">
 <div class="contact-ava">${p.nom[0]}</div>
-<div class="contact-info">
-<div class="contact-name">${p.nom}</div>
+<div class="contact-info"><div class="contact-name">${p.nom}</div>
 <div class="contact-role">${p.poste||''}</div>
-<div class="contact-tel">${p.tel||''}</div>
-</div>
+<div class="contact-tel">${p.tel||''}</div></div>
 <div style="display:flex;gap:6px">
 ${p.tel?`<div class="ibtn" onclick="window.location='tel:${p.tel}'">📞</div>`:''}
 <div class="ibtn" onclick="deleteEquipe('${p.id}','per')">🗑️</div>
-</div>
-</div>`).join('')}
-</div>`).join(''):'<p style="color:var(--mut);text-align:center;padding:30px">Aucun personnel</p>';
+</div></div>`).join('')}</div>`).join('')
+:'<p style="color:var(--mut);text-align:center;padding:30px">Aucun personnel<br><small>Appuyez sur + pour ajouter</small></p>';
 }
 }
 
-// ══ ADD EQUIPE ══
 function showAddEquipe(){
 const m=document.getElementById('mbox-equipe');
 m.innerHTML=`<h3>${teamTab==='st'?'➕ Nouveau sous-traitant':'➕ Nouveau personnel'}</h3>
@@ -405,7 +405,7 @@ ${teamTab==='st'?`
 `:`
 <input class="inp" id="eq-poste" placeholder="Poste (ex: Chef de chantier, Plombier...)">
 <input class="inp" id="eq-tel" placeholder="Téléphone">
-<input class="inp" id="eq-pin" placeholder="Code PIN à 4 chiffres">
+<input class="inp" id="eq-pin" placeholder="Code PIN à 4 chiffres (optionnel)">
 `}
 <div style="display:flex;gap:8px;margin-top:8px">
 <button class="btn sec" onclick="closeModal('modal-equipe')">Annuler</button>
@@ -413,36 +413,39 @@ ${teamTab==='st'?`
 </div>`;
 document.getElementById('modal-equipe').classList.remove('hidden');
 }
+
 function saveEquipe(){
 const nom=document.getElementById('eq-nom').value.trim();
 if(!nom){toast('❌ Nom requis');return;}
 if(teamTab==='st'){
-const st={id:'st'+Date.now(),nom,metier:document.getElementById('eq-met').value.trim()||'Autre',
-entreprise:document.getElementById('eq-ent').value.trim(),tel:document.getElementById('eq-tel').value.trim(),
+const st={id:'st'+Date.now(),nom,
+metier:document.getElementById('eq-met').value.trim()||'Autre',
+entreprise:document.getElementById('eq-ent').value.trim(),
+tel:document.getElementById('eq-tel').value.trim(),
 email:document.getElementById('eq-email').value.trim()};
 emit('equipe:add',{type:'st',data:st});
 }else{
-const pin=document.getElementById('eq-pin').value.trim();
-if(pin&&pin.length!==4){toast('❌ PIN doit être 4 chiffres');return;}
-const per={id:'per'+Date.now(),nom,poste:document.getElementById('eq-poste').value.trim()||'Autre',
-tel:document.getElementById('eq-tel').value.trim(),pin:pin||null};
+const per={id:'per'+Date.now(),nom,
+poste:document.getElementById('eq-poste').value.trim()||'Autre',
+tel:document.getElementById('eq-tel').value.trim(),
+pin:document.getElementById('eq-pin').value.trim()||null};
 emit('equipe:add',{type:'per',data:per});
 }
 closeModal('modal-equipe');toast('✅ Enregistré');
 }
+
 function deleteEquipe(id,type){
 if(!confirm('Supprimer ?'))return;
 emit('equipe:delete',{id,type});toast('🗑️ Supprimé');
 }
 
-// ══ MISSIONS CRUD ══
 function showAddMission(){
 const mbox=document.getElementById('mbox-mission');
 mbox.innerHTML=`<h3>➕ Nouvelle mission</h3>
 <input class="inp" id="mis-titre" placeholder="Titre de la mission">
 <input class="inp" id="mis-adr" placeholder="Adresse du chantier">
 <textarea class="inp" id="mis-desc" placeholder="Description" rows="3"></textarea>
-<input class="inp" id="mis-date" type="date" placeholder="Date prévue">
+<input class="inp" id="mis-date" type="date">
 <input class="inp" id="mis-notes" placeholder="Notes">
 <div style="display:flex;gap:8px;margin-top:8px">
 <button class="btn sec" onclick="closeModal('modal-mission')">Annuler</button>
@@ -450,30 +453,30 @@ mbox.innerHTML=`<h3>➕ Nouvelle mission</h3>
 </div>`;
 document.getElementById('modal-mission').classList.remove('hidden');
 }
+
 function saveMission(){
 const titre=document.getElementById('mis-titre').value.trim();
 if(!titre){toast('❌ Titre requis');return;}
-const num='MIS-'+new Date().toISOString().slice(0,10).replace(/-/g,'')+'-'+(db.config.nextMis||1).toString().padStart(3,'0');
-const m={id:'m'+Date.now(),num,titre,adresse:document.getElementById('mis-adr').value.trim(),
-desc:document.getElementById('mis-desc').value.trim(),date:document.getElementById('mis-date').value,
-notes:document.getElementById('mis-notes').value.trim(),stat:'en_cours',prog:10,itvs:[],checklist:[],
-createdAt:new Date().toISOString(),createdBy:currentUser.nom};
+const n=db.config?.nextMis||1;
+const num='MIS-'+new Date().toISOString().slice(0,10).replace(/-/g,'')+'-'+n.toString().padStart(3,'0');
+const m={id:'m'+Date.now(),num,titre,
+adresse:document.getElementById('mis-adr').value.trim(),
+desc:document.getElementById('mis-desc').value.trim(),
+date:document.getElementById('mis-date').value,
+notes:document.getElementById('mis-notes').value.trim(),
+stat:'en_cours',prog:10,itvs:[],checklist:[],
+createdAt:new Date().toISOString(),createdBy:currentUser?.nom||''};
 emit('mission:add',m);closeModal('modal-mission');toast('✅ Mission créée: '+num);
 }
 
-// ══ DETAIL ══
-function openDetail(id){
-const m=db.missions.find(x=>x.id===id);
-if(!m)return;
-showScreen('detail');
-buildDetail(id);
-}
+function openDetail(id){showScreen('detail');buildDetail(id);}
+
 function buildDetail(id){
 const m=db.missions.find(x=>x.id===id);if(!m)return;
 const allTeam=[...(db.soustraitants||[]).map(s=>({...s,_type:'st'})),...(db.personnel||[]).map(p=>({...p,_type:'per'}))];
 document.getElementById('detail-content').innerHTML=`
 <div style="margin-bottom:12px">
-<div style="font-size:11px;color:var(--mut)">${m.num||''}</div>
+<div style="font-size:11px;color:var(--blu)">${m.num||''}</div>
 <div style="font-size:20px;font-weight:800;margin:4px 0">${m.titre}</div>
 <div style="font-size:12px;color:var(--mut)">${m.adresse||''}</div>
 <span class="tag ${statClass(m.stat)}" style="margin-top:8px;display:inline-block">${statLabel(m.stat)}</span>
@@ -481,51 +484,48 @@ document.getElementById('detail-content').innerHTML=`
 <div class="prog-bar" style="margin-bottom:16px"><div class="prog-fill" style="width:${m.prog||0}%"></div></div>
 ${m.desc?`<div style="font-size:13px;color:var(--mut);margin-bottom:12px">${m.desc}</div>`:''}
 ${m.notes?`<div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:10px;padding:10px;margin-bottom:12px;font-size:12px"><b>📝 Notes:</b> ${m.notes}</div>`:''}
-
 <div class="sec">Intervenants</div>
-${(m.itvs||[]).map(itv=>`
-<div class="itv-card">
-<div class="itv-name">${itv.nom} <span style="font-size:10px;color:var(--mut)">${itv._type==='per'?'👔 Personnel':'🔧 Sous-traitant'}</span></div>
+${(m.itvs||[]).map(itv=>`<div class="itv-card">
+<div class="itv-name">${itv.nom} <span style="font-size:10px;color:var(--mut)">${itv._type==='per'?'👔':'🔧'}</span></div>
 <div class="itv-meta">${itv.metier||itv.poste||''}</div>
-${itv.debut?`<div class="itv-meta">🕐 Début: ${itv.debut}</div>`:''}
-${itv.fin?`<div class="itv-meta">🕑 Fin: ${itv.fin}</div>`:''}
+${itv.debut?`<div class="itv-meta">🕐 Début: ${new Date(itv.debut).toLocaleString('fr-FR')}</div>`:''}
+${itv.fin?`<div class="itv-meta">🕑 Fin: ${new Date(itv.fin).toLocaleString('fr-FR')}</div>`:''}
 ${itv.montant?`<div class="itv-meta">💰 ${itv.montant}€</div>`:''}
 </div>`).join('')}
 <button class="btn sec" style="margin-bottom:12px" onclick="showAddItv('${m.id}')">➕ Ajouter intervenant</button>
-
 <div class="sec">Checklist</div>
 <div class="ck-list">${(m.checklist||[]).map((c,i)=>`
 <div class="ck-item" onclick="toggleCk('${m.id}',${i})">
 <div class="ck-box ${c.done?'done':''}">${c.done?'✓':''}</div>
 <span style="font-size:13px;${c.done?'text-decoration:line-through;color:var(--mut)':''}">${c.txt}</span>
-</div>`).join('')}
-</div>
+</div>`).join('')}</div>
 <button class="btn sec" style="margin-bottom:16px" onclick="addCk('${m.id}')">➕ Ajouter étape</button>
-
 <div class="sec">Actions</div>
 <div style="display:flex;flex-direction:column;gap:8px">
 ${m.stat!=='annule'?`
-<button class="btn sec" onclick="setStatut('${m.id}','a_valider')">📋 Marquer à valider</button>
-<button class="btn sec" onclick="setStatut('${m.id}','en_cours')">🔨 Marquer en cours</button>
-${currentUser&&(currentUser.isAdmin||currentUser.role==='Comptabilité'||currentUser.role==='Paiements')?`
+<button class="btn sec" onclick="setStatut('${m.id}','en_cours')">🔨 En cours</button>
+<button class="btn sec" onclick="setStatut('${m.id}','a_valider')">📋 À valider</button>
+${currentUser?.isAdmin||currentUser?.role==='Comptabilité'||currentUser?.role==='Paiements'?`
 <button class="btn amb" onclick="valider('${m.id}')">✅ Valider</button>
 <button class="btn pri" onclick="payer('${m.id}')">💳 Marquer payée</button>`:''}
 <button class="btn dan" onclick="annulerMission('${m.id}')">🚫 Annuler la mission</button>
-`:`<div style="text-align:center;color:var(--red);font-size:13px;padding:12px">❌ Mission annulée — archivée</div>`}
+`:`<div style="text-align:center;color:var(--red);padding:12px">❌ Mission annulée — archivée</div>`}
 </div>`;
 }
 
-// ══ ITV ══
 function showAddItv(mId){
 const allTeam=[...(db.soustraitants||[]).map(s=>({...s,_type:'st'})),...(db.personnel||[]).map(p=>({...p,_type:'per'}))];
 const mbox=document.getElementById('mbox-itv');
 mbox.innerHTML=`<h3>➕ Ajouter intervenant</h3>
 <select class="inp" id="itv-sel">
-<option value="">-- Choisir un intervenant --</option>
-${allTeam.map(t=>`<option value="${t.id}">${t.nom} (${t._type==='per'?'👔 Personnel':'🔧 ST'} - ${t.metier||t.poste||''})</option>`).join('')}
+<option value="">-- Choisir --</option>
+<optgroup label="🔧 Sous-traitants">${(db.soustraitants||[]).map(s=>`<option value="${s.id}">${s.nom} - ${s.metier||''}</option>`).join('')}</optgroup>
+<optgroup label="👔 Personnel AMS BAT">${(db.personnel||[]).map(p=>`<option value="${p.id}">${p.nom} - ${p.poste||''}</option>`).join('')}</optgroup>
 </select>
-<input class="inp" id="itv-debut" type="datetime-local" placeholder="Début intervention">
-<input class="inp" id="itv-fin" type="datetime-local" placeholder="Fin intervention">
+<label style="font-size:12px;color:var(--mut)">Début intervention</label>
+<input class="inp" id="itv-debut" type="datetime-local">
+<label style="font-size:12px;color:var(--mut)">Fin intervention</label>
+<input class="inp" id="itv-fin" type="datetime-local">
 <input class="inp" id="itv-mont" type="number" placeholder="Montant € (optionnel)">
 <div style="display:flex;gap:8px;margin-top:8px">
 <button class="btn sec" onclick="closeModal('modal-itv')">Annuler</button>
@@ -533,59 +533,52 @@ ${allTeam.map(t=>`<option value="${t.id}">${t.nom} (${t._type==='per'?'👔 Pers
 </div>`;
 document.getElementById('modal-itv').classList.remove('hidden');
 }
+
 function saveItv(mId){
 const sel=document.getElementById('itv-sel').value;
 if(!sel){toast('❌ Choisir un intervenant');return;}
 const allTeam=[...(db.soustraitants||[]).map(s=>({...s,_type:'st'})),...(db.personnel||[]).map(p=>({...p,_type:'per'}))];
-const t=allTeam.find(x=>x.id===sel);
-if(!t)return;
-const num='ITV-'+new Date().toISOString().slice(0,10).replace(/-/g,'')+'-'+(db.config.nextItv||1).toString().padStart(3,'0');
+const t=allTeam.find(x=>x.id===sel);if(!t)return;
+const n=db.config?.nextItv||1;
+const num='ITV-'+new Date().toISOString().slice(0,10).replace(/-/g,'')+'-'+n.toString().padStart(3,'0');
 const itv={id:'itv'+Date.now(),num,nom:t.nom,metier:t.metier||t.poste||'',_type:t._type,
-debut:document.getElementById('itv-debut').value,fin:document.getElementById('itv-fin').value,
+debut:document.getElementById('itv-debut').value,
+fin:document.getElementById('itv-fin').value,
 montant:document.getElementById('itv-mont').value};
-emit('mission:add-itv',{mId,itv});closeModal('modal-itv');toast('✅ Intervenant ajouté: '+num);
+emit('mission:add-itv',{mId,itv});closeModal('modal-itv');toast('✅ '+num+' ajouté');
 }
 
-// ══ CHECKLIST ══
-function addCk(mId){
-const txt=prompt('Nouvelle étape:');
-if(!txt)return;
-emit('mission:add-ck',{mId,txt});
-}
+function addCk(mId){const txt=prompt('Nouvelle étape:');if(!txt)return;emit('mission:add-ck',{mId,txt});}
 function toggleCk(mId,idx){emit('mission:toggle-ck',{mId,idx});}
-
-// ══ STATUTS ══
 function setStatut(id,s){emit('mission:update',{id,changes:{stat:s,prog:s==='a_valider'?90:40}});toast('✅ Statut mis à jour');setTimeout(()=>buildDetail(id),500);}
 function valider(id){emit('mission:update',{id,changes:{stat:'valide',prog:95}});toast('✅ Validé');setTimeout(()=>buildDetail(id),500);}
 function payer(id){emit('mission:update',{id,changes:{stat:'paye',prog:100}});toast('💳 Payée');setTimeout(()=>buildDetail(id),500);}
-function annulerMission(id){if(!confirm('Annuler cette mission ? Elle sera archivée.'))return;emit('mission:update',{id,changes:{stat:'annule',prog:0}});toast('🚫 Mission annulée');setTimeout(()=>buildDetail(id),500);}
-function editMission(){}
+function annulerMission(id){if(!confirm('Annuler cette mission ? Elle sera archivée.'))return;emit('mission:update',{id,changes:{stat:'annule',prog:0}});toast('🚫 Annulée');setTimeout(()=>buildDetail(id),500);}
 
-// ══ COMPTA ══
 function renderCompta(){
 const mis=db.missions||[];
-const total=mis.reduce((s,m)=>{return s+(m.itvs||[]).reduce((a,i)=>a+(parseFloat(i.montant)||0),0);},0);
+const total=mis.reduce((s,m)=>s+(m.itvs||[]).reduce((a,i)=>a+(parseFloat(i.montant)||0),0),0);
 const payees=mis.filter(m=>m.stat==='paye');
-const totalPaye=payees.reduce((s,m)=>{return s+(m.itvs||[]).reduce((a,i)=>a+(parseFloat(i.montant)||0),0);},0);
+const totalPaye=payees.reduce((s,m)=>s+(m.itvs||[]).reduce((a,i)=>a+(parseFloat(i.montant)||0),0),0);
 document.getElementById('compta-content').innerHTML=`
 <div class="sgrid" style="padding:0;margin-bottom:16px">
 <div class="scard"><div class="snum">${total.toFixed(0)}€</div><div class="slbl">Total</div></div>
 <div class="scard"><div class="snum a">${totalPaye.toFixed(0)}€</div><div class="slbl">Payé</div></div>
 <div class="scard"><div class="snum r">${(total-totalPaye).toFixed(0)}€</div><div class="slbl">Restant</div></div>
 </div>
-<div class="sec">Missions avec montants</div>
+<div class="sec">Missions</div>
 ${mis.filter(m=>(m.itvs||[]).some(i=>i.montant)).map(m=>`
-<div class="mc">
-<div class="mc-hdr"><div class="mc-title">${m.titre}</div><span class="tag ${statClass(m.stat)}">${statLabel(m.stat)}</span></div>
-<div style="font-size:12px;color:var(--acc);margin-top:6px">${(m.itvs||[]).reduce((a,i)=>a+(parseFloat(i.montant)||0),0).toFixed(0)}€</div>
+<div class="mc"><div class="mc-hdr">
+<div><div class="mc-title">${m.titre}</div><div class="mc-adr">${m.num||''}</div></div>
+<span class="tag ${statClass(m.stat)}">${statLabel(m.stat)}</span></div>
+<div style="font-size:14px;font-weight:700;color:var(--acc);margin-top:6px">${(m.itvs||[]).reduce((a,i)=>a+(parseFloat(i.montant)||0),0).toFixed(0)}€</div>
 </div>`).join('')||'<p style="color:var(--mut);text-align:center;padding:20px">Aucune donnée</p>'}`;
 }
 
-// ══ BORD ══
 function renderBord(){
 const mis=db.missions||[];
 document.getElementById('bord-content').innerHTML=`
-<div class="sec">Résumé général</div>
+<div class="sec">Résumé</div>
 <div class="sgrid" style="padding:0;margin-bottom:16px">
 <div class="scard"><div class="snum">${mis.length}</div><div class="slbl">Missions</div></div>
 <div class="scard"><div class="snum">${db.soustraitants?.length||0}</div><div class="slbl">Sous-trait.</div></div>
@@ -595,49 +588,45 @@ document.getElementById('bord-content').innerHTML=`
 ${['en_cours','a_valider','valide','paye','annule'].map(s=>`
 <div class="mc"><div class="mc-hdr">
 <span class="tag ${statClass(s)}">${statLabel(s)}</span>
-<span style="font-size:16px;font-weight:800">${mis.filter(m=>m.stat===s).length}</span>
+<span style="font-size:18px;font-weight:800">${mis.filter(m=>m.stat===s).length}</span>
 </div></div>`).join('')}`;
 }
 
-// ══ ADMIN ══
 function showAdmin(){
 if(!currentUser?.isAdmin){toast('❌ Accès refusé');return;}
 const mbox=document.getElementById('mbox-admin');
 mbox.innerHTML=`<h3>⚙️ Administration</h3>
-<div class="sec">Membres de l'équipe</div>
+<div class="sec">Membres équipe</div>
 ${db.users.map(u=>`<div class="mc" style="margin-bottom:8px">
-<div class="mc-hdr">
-<div><div class="mc-title">${u.nom}</div><div class="mc-adr">${u.role}</div></div>
+<div class="mc-hdr"><div><div class="mc-title">${u.nom}</div><div class="mc-adr">${u.role} · PIN: ${u.pin}</div></div>
 <div style="display:flex;gap:6px">
 <div class="ibtn" onclick="editUser('${u.id}')">✏️</div>
 ${!u.isAdmin?`<div class="ibtn" onclick="deleteUser('${u.id}')">🗑️</div>`:''}
-</div>
-</div>
-</div>`).join('')}
+</div></div></div>`).join('')}
 <button class="btn sec" style="margin-bottom:12px" onclick="addUser()">➕ Ajouter membre</button>
 <div class="sec">Code d'accès partagé</div>
 <div style="display:flex;gap:8px;margin-bottom:12px">
-<input class="inp" id="new-code" placeholder="Nouveau code" style="margin-bottom:0" value="${db.config.accessCode}">
+<input class="inp" id="new-code" placeholder="Nouveau code" style="margin-bottom:0" value="${db.config?.accessCode||'AMSBAT2026'}">
 <button class="btn pri" style="width:auto;padding:0 16px" onclick="saveCode()">💾</button>
 </div>
 <button class="btn sec" onclick="closeModal('modal-admin')">Fermer</button>`;
 document.getElementById('modal-admin').classList.remove('hidden');
 }
+
 function addUser(){
-const nom=prompt('Nom du membre:');if(!nom)return;
+const nom=prompt('Nom:');if(!nom)return;
 const role=prompt('Rôle:');if(!role)return;
-const pin=prompt('PIN à 4 chiffres:');if(!pin||pin.length!==4){toast('❌ PIN invalide');return;}
-const u={id:'u'+Date.now(),nom,role,pin};
-emit('user:add',u);toast('✅ Membre ajouté');setTimeout(showAdmin,500);
+const pin=prompt('PIN 4 chiffres:');if(!pin||pin.length!==4){toast('❌ PIN invalide');return;}
+emit('user:add',{id:'u'+Date.now(),nom,role,pin});toast('✅ Ajouté');setTimeout(showAdmin,500);
 }
 function editUser(id){
 const u=db.users.find(x=>x.id===id);if(!u)return;
-const pin=prompt('Nouveau PIN pour '+u.nom+' (actuel: '+u.pin+'):');
+const pin=prompt('Nouveau PIN pour '+u.nom+':');
 if(!pin||pin.length!==4){toast('❌ PIN invalide');return;}
 emit('user:update',{id,pin});toast('✅ PIN modifié');
 }
 function deleteUser(id){
-if(!confirm('Supprimer ce membre ?'))return;
+if(!confirm('Supprimer ?'))return;
 emit('user:delete',{id});toast('🗑️ Supprimé');setTimeout(showAdmin,500);
 }
 function saveCode(){
@@ -646,15 +635,13 @@ if(!code){toast('❌ Code vide');return;}
 emit('config:update',{accessCode:code});toast('✅ Code mis à jour');
 }
 
-// ══ HELPERS ══
 function statClass(s){return{en_cours:'s-ec',a_valider:'s-va',valide:'s-co',paye:'s-pa',annule:'s-an',en_retard:'s-an'}[s]||'s-av';}
 function statLabel(s){return{en_cours:'En cours',a_valider:'À valider',valide:'Validée',paye:'Payée',annule:'Annulée',en_retard:'En retard'}[s]||s;}
 function toast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.getElementById('toast-c').appendChild(t);setTimeout(()=>t.remove(),3000);}
 function closeModal(id){document.getElementById(id).classList.add('hidden');}
 
-// ══ INIT ══
 showScreen('login');
-setInterval(()=>{if(currentScreen!=='login'&&currentScreen!=='pin')refresh();},30000);
+setInterval(()=>{if(!['login','pin','userselect'].includes(currentScreen))refresh();},30000);
 </script>
 </body>
 </html>
