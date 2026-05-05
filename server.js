@@ -11,7 +11,7 @@ const DB_FILE=path.join(__dirname,'db.json');
 function loadDB(){if(!fs.existsSync(DB_FILE))return{missions:[],soustraitants:[],personnel:[],users:[{id:'u1',nom:'Haimane',role:'Administrateur',pin:'0000',isAdmin:true},{id:'u2',nom:'Shanaz',role:'Comptabilite',pin:'1111'},{id:'u3',nom:'Fatima Zara',role:'Paiements',pin:'2222'},{id:'u4',nom:'Miryem',role:'Coordination',pin:'3333'}],config:{accessCode:'AMSBAT2026',nextMis:1,nextItv:1}};try{return JSON.parse(fs.readFileSync(DB_FILE,'utf8'));}catch(e){return{missions:[],soustraitants:[],personnel:[],users:[],config:{accessCode:'AMSBAT2026',nextMis:1,nextItv:1}};}}
 function saveDB(d){fs.writeFileSync(DB_FILE,JSON.stringify(d,null,2));}
 app.use(express.json());
-app.use(express.static(path.join(__dirname,'public')));
+app.use(express.static(__dirname));
 io.on('connection',(socket)=>{
 socket.emit('init',loadDB());
 socket.on('mission:add',(m)=>{const d=loadDB();if(!d.missions)d.missions=[];d.missions.push(m);if(d.config)d.config.nextMis=(d.config.nextMis||1)+1;saveDB(d);io.emit('update',d);});
