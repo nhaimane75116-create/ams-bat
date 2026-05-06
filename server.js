@@ -1,246 +1,31 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>AMS BAT</title>
-<script src="/socket.io/socket.io.js"></script>
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#090d14;--s1:#111827;--s2:#1a2235;--s3:#212d42;--br:#2a3a55;--acc:#25d366;--acc2:#128c7e;--amb:#f59e0b;--red:#ef4444;--blu:#3b82f6;--pur:#8b5cf6;--txt:#e8edf5;--mut:#6b7a99}
-html,body{height:100%;overflow:hidden;background:var(--bg);font-family:-apple-system,sans-serif;color:var(--txt)}
-#app{height:100%;display:flex;flex-direction:column;max-width:430px;margin:0 auto;position:relative}
-.scr{display:none;flex-direction:column;flex:1;overflow:hidden}
-.scr.on{display:flex;animation:fi .2s ease}
-@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-.pad{padding:0 16px 110px}
-.sb{padding:50px 20px 6px;display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:600;flex-shrink:0;background:var(--bg)}
-.hdr{padding:4px 20px 10px;flex-shrink:0}
-.hdr-row{display:flex;align-items:center;justify-content:space-between}
-.htitle{font-size:22px;font-weight:800;letter-spacing:-.4px}
-.hsub{font-size:11px;color:var(--mut);margin-top:2px}
-.ava{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--acc2),var(--acc));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800}
-.ibtn{width:36px;height:36px;border-radius:50%;background:var(--s2);border:1px solid var(--br);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer}
-.sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 16px 10px;flex-shrink:0}
-.scard{background:var(--s2);border:1px solid var(--br);border-radius:14px;padding:12px 8px;text-align:center}
-.snum{font-size:20px;font-weight:800}.snum.a{color:var(--amb)}.snum.r{color:var(--red)}
-.slbl{font-size:9px;color:var(--mut);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
-.mc{background:var(--s2);border:1px solid var(--br);border-radius:16px;padding:13px;margin-bottom:9px;cursor:pointer;transition:transform .15s}
-.mc:active{transform:scale(.98)}
-.mc-hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
-.mc-title{font-size:14px;font-weight:700}
-.mc-adr{font-size:11px;color:var(--mut);margin-top:2px}
-.tag{font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;border:1px solid}
-.tag.s-ec{color:#34d399;border-color:rgba(52,211,153,.3);background:rgba(52,211,153,.08)}
-.tag.s-va{color:#fbbf24;border-color:rgba(251,191,36,.3);background:rgba(251,191,36,.08)}
-.tag.s-co{color:#a78bfa;border-color:rgba(167,139,250,.3);background:rgba(167,139,250,.08)}
-.tag.s-pa{color:#25d366;border-color:rgba(37,211,102,.3);background:rgba(37,211,102,.08)}
-.tag.s-an{color:#f87171;border-color:rgba(248,113,113,.3);background:rgba(248,113,113,.08)}
-.prog-bar{height:3px;background:var(--br);border-radius:2px;margin-top:8px;overflow:hidden}
-.prog-fill{height:100%;background:linear-gradient(90deg,var(--acc2),var(--acc));border-radius:2px;transition:width .3s}
-.btn{display:flex;align-items:center;justify-content:center;gap:6px;padding:13px;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;border:none;transition:all .15s;width:100%}
-.btn.pri{background:linear-gradient(135deg,var(--acc2),var(--acc));color:#fff}
-.btn.sec{background:var(--s2);color:var(--txt);border:1px solid var(--br)}
-.btn.dan{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3)}
-.btn.amb{background:rgba(245,158,11,.15);color:var(--amb);border:1px solid rgba(245,158,11,.3)}
-.btn.wa{background:rgba(37,211,102,.15);color:#25d366;border:1px solid rgba(37,211,102,.3)}
-.fab{position:fixed;bottom:80px;right:20px;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--acc2),var(--acc));display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;box-shadow:0 4px 20px rgba(37,211,102,.4);z-index:100;border:none}
-.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--s1);border-top:1px solid var(--br);display:flex;padding:8px 0 20px;z-index:200}
-.nitem{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 0}
-.nitem .ico{font-size:20px}
-.nitem .lbl{font-size:9px;font-weight:600;color:var(--mut);text-transform:uppercase}
-.nitem.act .lbl{color:var(--acc)}
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;display:flex;align-items:flex-end;justify-content:center}
-.modal.hidden{display:none}
-.mbox{background:var(--s1);border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:430px;max-height:90vh;overflow-y:auto}
-.mbox h3{font-size:17px;font-weight:800;margin-bottom:16px}
-.inp{width:100%;background:var(--s2);border:1px solid var(--br);border-radius:12px;padding:12px;color:var(--txt);font-size:14px;margin-bottom:10px}
-.inp:focus{outline:none;border-color:var(--acc)}
-select.inp option{background:var(--s2)}
-.pin-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}
-.pin-btn{background:var(--s2);border:1px solid var(--br);border-radius:14px;padding:16px;font-size:20px;font-weight:700;cursor:pointer;text-align:center}
-.pin-dots{display:flex;justify-content:center;gap:10px;margin:20px 0}
-.pin-dot{width:14px;height:14px;border-radius:50%;background:var(--br);transition:background .2s}
-.pin-dot.on{background:var(--acc)}
-.user-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
-.user-card{background:var(--s2);border:1px solid var(--br);border-radius:14px;padding:16px;text-align:center;cursor:pointer;transition:all .2s}
-.user-card:active{transform:scale(.96)}
-.user-ava{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--acc2),var(--acc));display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;margin:0 auto 8px}
-.user-name{font-size:14px;font-weight:700}
-.user-role{font-size:10px;color:var(--mut);margin-top:3px}
-.code-inp{width:100%;background:var(--s2);border:2px solid var(--br);border-radius:16px;padding:16px;text-align:center;font-size:18px;font-weight:700;color:var(--txt);letter-spacing:4px}
-.code-inp:focus{outline:none;border-color:var(--acc)}
-.toast-c{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:6px;pointer-events:none}
-.toast{background:var(--s1);border:1px solid var(--br);border-radius:12px;padding:10px 16px;font-size:13px;font-weight:600;white-space:nowrap;animation:tst .3s ease}
-@keyframes tst{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
-.itv-card{background:var(--s2);border:1px solid var(--br);border-radius:12px;padding:12px;margin-bottom:8px}
-.itv-name{font-size:13px;font-weight:700}
-.itv-meta{font-size:11px;color:var(--mut);margin-top:3px}
-.ck-list{display:flex;flex-direction:column;gap:6px;margin:10px 0}
-.ck-item{display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--s2);border-radius:10px;cursor:pointer}
-.ck-box{width:18px;height:18px;border-radius:5px;border:2px solid var(--br);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
-.ck-box.done{background:var(--acc);border-color:var(--acc)}
-.tab-row{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
-.tab{padding:7px 14px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;background:var(--s2);color:var(--mut);border:1px solid var(--br)}
-.tab.act{background:var(--acc);color:#000;border-color:var(--acc)}
-.met-section{margin-bottom:16px}
-.met-title{font-size:12px;font-weight:800;color:var(--acc);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;padding:6px 10px;background:rgba(37,211,102,.08);border-radius:8px}
-.contact-card{background:var(--s2);border:1px solid var(--br);border-radius:12px;padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:12px}
-.contact-ava{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--s3),var(--br));display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
-.contact-info{flex:1}
-.contact-name{font-size:14px;font-weight:700}
-.contact-role{font-size:11px;color:var(--mut);margin-top:2px}
-.contact-tel{font-size:12px;color:var(--acc);margin-top:3px}
-.sec{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin:12px 0 8px}
-.paiement-card{background:var(--s2);border:1px solid var(--br);border-radius:12px;padding:12px;margin-bottom:8px}
-.paiement-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
-</style>
-</head>
-<body>
-<div id="toast-c" class="toast-c"></div>
-<div id="app">
-<div id="s-login" style="height:100%;display:flex;flex-direction:column">
-<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;gap:16px">
-<div style="font-size:60px">🏗️</div>
-<div style="font-size:28px;font-weight:900;letter-spacing:-1px">AMS BAT</div>
-<p style="color:var(--mut);font-size:13px">Code fourni par votre gestionnaire</p>
-<input id="access-inp" class="code-inp" placeholder="CODE D'ACCÈS..." maxlength="20">
-<button class="btn pri" onclick="checkAccess()">Accéder →</button>
-</div>
-<div style="padding:20px;text-align:center;border-top:1px solid var(--br)">
-<div style="font-size:14px;font-weight:700">AMS BAT</div>
-<div style="font-size:11px;color:var(--acc);margin-top:4px">● Connecté</div>
-<div style="margin-top:8px;font-size:12px;color:var(--mut)">Gestionnaire ? <span style="color:var(--acc);cursor:pointer;font-weight:700" onclick="showUserSelect()">Accès administrateur</span></div>
-</div>
-</div>
-<div id="s-userselect" class="scr" style="align-items:center;justify-content:center;padding:30px">
-<div style="text-align:center;width:100%">
-<div style="font-size:22px;font-weight:900;margin-bottom:4px">Qui êtes-vous ?</div>
-<div class="user-grid" id="user-grid"></div>
-<button class="btn sec" style="margin-top:8px" onclick="showScreen('login')">← Retour</button>
-</div>
-</div>
-<div id="s-pin" class="scr" style="align-items:center;justify-content:center;padding:30px">
-<div style="text-align:center;width:100%">
-<div id="pin-user-ava" style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--acc2),var(--acc));display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;margin:0 auto 8px"></div>
-<div style="font-size:22px;font-weight:900;margin-bottom:4px" id="pin-name-lbl"></div>
-<div style="font-size:13px;color:var(--mut);margin-bottom:8px">Code PIN à 4 chiffres</div>
-<div class="pin-dots"><div class="pin-dot" id="pd0"></div><div class="pin-dot" id="pd1"></div><div class="pin-dot" id="pd2"></div><div class="pin-dot" id="pd3"></div></div>
-<div class="pin-row">
-<div class="pin-btn" onclick="pinKey('1')">1</div><div class="pin-btn" onclick="pinKey('2')">2</div><div class="pin-btn" onclick="pinKey('3')">3</div>
-<div class="pin-btn" onclick="pinKey('4')">4</div><div class="pin-btn" onclick="pinKey('5')">5</div><div class="pin-btn" onclick="pinKey('6')">6</div>
-<div class="pin-btn" onclick="pinKey('7')">7</div><div class="pin-btn" onclick="pinKey('8')">8</div><div class="pin-btn" onclick="pinKey('9')">9</div>
-<div class="pin-btn" onclick="pinKey('back')">⌫</div><div class="pin-btn" onclick="pinKey('0')">0</div><div class="pin-btn" onclick="pinKey('back')">⌫</div>
-</div>
-<button class="btn sec" style="margin-top:8px" onclick="showUserSelect()">← Changer</button>
-</div>
-</div>
-<div id="s-home" class="scr">
-<div class="sb"><span id="h-time"></span><span id="h-user"></span></div>
-<div class="hdr"><div class="hdr-row"><div><div class="htitle">AMS BAT</div><div class="hsub" id="h-sub"></div></div><div class="ava" id="h-ava">H</div></div></div>
-<div class="sgrid" id="stat-grid"></div>
-<div class="scroll"><div class="pad" id="home-list"></div></div>
-</div>
-<div id="s-missions" class="scr">
-<div class="sb"><span>MISSIONS</span><button class="ibtn" onclick="showAddMission()">＋</button></div>
-<div style="padding:0 16px 8px;flex-shrink:0"><div class="tab-row" id="mis-tabs"></div></div>
-<div class="scroll"><div class="pad" id="mis-list"></div></div>
-</div>
-<div id="s-archives" class="scr">
-<div class="sb"><span>📦 ARCHIVES</span></div>
-<div class="scroll"><div class="pad" id="archives-list"></div></div>
-</div>
-<div id="s-equipes" class="scr">
-<div class="sb"><span>ÉQUIPES</span></div>
-<div style="padding:0 16px 8px;flex-shrink:0">
-<div class="tab-row">
-<div class="tab act" id="tab-st" onclick="switchTeamTab('st')">🔧 Sous-traitants</div>
-<div class="tab" id="tab-per" onclick="switchTeamTab('per')">👔 Personnel AMS BAT</div>
-</div>
-</div>
-<div class="scroll"><div class="pad" id="equipe-list"></div></div>
-<button class="fab" onclick="showAddEquipe()">＋</button>
-</div>
-<div id="s-compta" class="scr">
-<div class="sb"><span>COMPTABILITÉ</span></div>
-<div class="scroll"><div class="pad" id="compta-content"></div></div>
-</div>
-<div id="s-detail" class="scr">
-<div class="sb"><button class="ibtn" onclick="goBack()">←</button><span>MISSION</span><div style="width:36px"></div></div>
-<div class="scroll"><div class="pad" id="detail-content"></div></div>
-</div>
-<nav class="nav" id="main-nav">
-<div class="nitem act" onclick="goTo('home')" id="n-home"><span class="ico">🏠</span><span class="lbl">Accueil</span></div>
-<div class="nitem" onclick="goTo('missions')" id="n-missions"><span class="ico">📋</span><span class="lbl">Missions</span></div>
-<div class="nitem" onclick="goTo('archives')" id="n-archives"><span class="ico">📦</span><span class="lbl">Archives</span></div>
-<div class="nitem" onclick="goTo('equipes')" id="n-equipes"><span class="ico">👥</span><span class="lbl">Équipes</span></div>
-<div class="nitem" onclick="goTo('compta')" id="n-compta"><span class="ico">💰</span><span class="lbl">Compta</span></div>
-</nav>
-<div id="modal-mission" class="modal hidden"><div class="mbox" id="mbox-mission"></div></div>
-<div id="modal-equipe" class="modal hidden"><div class="mbox" id="mbox-equipe"></div></div>
-<div id="modal-itv" class="modal hidden"><div class="mbox" id="mbox-itv"></div></div>
-<div id="modal-admin" class="modal hidden"><div class="mbox" id="mbox-admin"></div></div>
-</div>
-<script>
-const socket=io();
-let db={missions:[],soustraitants:[],personnel:[],users:[{id:'u1',nom:'Haimane',role:'Administrateur',pin:'0000',isAdmin:true},{id:'u2',nom:'Shanaz',role:'Comptabilité',pin:'1111'},{id:'u3',nom:'Fatima Zara',role:'Paiements',pin:'2222'},{id:'u4',nom:'Miryem',role:'Coordination',pin:'3333'}],config:{accessCode:'AMSBAT2026',nextMis:1,nextItv:1}};
-let currentUser=null,currentScreen='login',pinBuffer='',teamTab='st',misFilter='all',selectedUser=null;
-socket.on('init',d=>{if(d){db={...db,...d};if(!db.users||!db.users.length)db.users=[{id:'u1',nom:'Haimane',role:'Administrateur',pin:'0000',isAdmin:true},{id:'u2',nom:'Shanaz',role:'Comptabilité',pin:'1111'},{id:'u3',nom:'Fatima Zara',role:'Paiements',pin:'2222'},{id:'u4',nom:'Miryem',role:'Coordination',pin:'3333'}];if(!db.soustraitants)db.soustraitants=[];if(!db.personnel)db.personnel=[];if(!db.missions)db.missions=[];}});
-socket.on('update',d=>{db={...db,...d};refresh()});
-function emit(ev,data){socket.emit(ev,data)}
-function checkAccess(){const v=document.getElementById('access-inp').value.trim().toUpperCase();if(v===(db.config?.accessCode||'AMSBAT2026').toUpperCase()){showUserSelect();return;}toast('❌ Code incorrect');}
-function showUserSelect(){document.getElementById('user-grid').innerHTML=db.users.map(u=>`<div class="user-card" onclick="selectUser('${u.id}')"><div class="user-ava">${u.nom[0]}</div><div class="user-name">${u.nom}</div><div class="user-role">${u.role}</div></div>`).join('');showScreen('userselect');}
-function selectUser(id){selectedUser=db.users.find(u=>u.id===id);if(!selectedUser)return;pinBuffer='';updateDots();document.getElementById('pin-name-lbl').textContent=selectedUser.nom;document.getElementById('pin-user-ava').textContent=selectedUser.nom[0];showScreen('pin');}
-function pinKey(k){if(k==='back'){pinBuffer=pinBuffer.slice(0,-1);}else if(pinBuffer.length<4){pinBuffer+=k;}updateDots();if(pinBuffer.length===4)setTimeout(checkPIN,200);}
-function updateDots(){for(let i=0;i<4;i++)document.getElementById('pd'+i).classList.toggle('on',i<pinBuffer.length);}
-function checkPIN(){if(!selectedUser)return;if(pinBuffer===selectedUser.pin){currentUser=selectedUser;toast('✅ Bonjour '+currentUser.nom);showScreen('home');refresh();}else{toast('❌ PIN incorrect');pinBuffer='';updateDots();}}
-function showScreen(id){document.querySelectorAll('.scr').forEach(e=>e.classList.remove('on'));const s=document.getElementById('s-'+id);if(s)s.classList.add('on');const loginEl=document.getElementById('s-login');if(loginEl)loginEl.style.display=id==='login'?'flex':'none';const hideNav=['login','pin','userselect'];document.getElementById('main-nav').style.display=hideNav.includes(id)?'none':'flex';currentScreen=id;document.querySelectorAll('.nitem').forEach(n=>n.classList.toggle('act',n.id==='n-'+id));}
-function goTo(id){showScreen(id);refresh();}
-function goBack(){goTo('missions');}
-function refresh(){updateClock();if(currentScreen==='home')renderHome();else if(currentScreen==='missions')renderMissions();else if(currentScreen==='archives')renderArchives();else if(currentScreen==='equipes')renderEquipes();else if(currentScreen==='compta')renderCompta();}
-function updateClock(){const now=new Date();const t=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');const e=document.getElementById('h-time');if(e)e.textContent=t;if(currentUser){const eu=document.getElementById('h-user');if(eu)eu.textContent=currentUser.nom+' · '+currentUser.role;const ea=document.getElementById('h-ava');if(ea)ea.textContent=currentUser.nom[0];const es=document.getElementById('h-sub');if(es)es.textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});}}
-setInterval(updateClock,60000);
-function renderHome(){const mis=db.missions||[];const actives=mis.filter(m=>m.stat!=='annule'&&m.stat!=='archive');const aValider=actives.filter(m=>m.stat==='a_valider').length;const enRetard=actives.filter(m=>m.stat==='en_retard').length;document.getElementById('stat-grid').innerHTML=`<div class="scard"><div class="snum">${actives.length}</div><div class="slbl">En cours</div></div><div class="scard"><div class="snum a">${aValider}</div><div class="slbl">À valider</div></div><div class="scard"><div class="snum r">${enRetard}</div><div class="slbl">En retard</div></div>`;const recent=actives.slice(-5).reverse();document.getElementById('home-list').innerHTML=`<div class="sec">Missions récentes</div>${recent.map(m=>`<div class="mc" onclick="openDetail('${m.id}')"><div class="mc-hdr"><div><div class="mc-title">${m.num?`<span style="font-size:9px;color:var(--blu)">${m.num}</span> `:''} ${m.titre}</div><div class="mc-adr">${m.adresse||''}</div></div><span class="tag ${statClass(m.stat)}">${statLabel(m.stat)}</span></div><div class="prog-bar"><div class="prog-fill" style="width:${m.prog||0}%"></div></div></div>`).join('')}${currentUser?.isAdmin?`<div class="sec" style="margin-top:16px">Administration</div><div class="mc" onclick="showAdmin()"><div class="mc-hdr"><div class="mc-title">⚙️ Paramètres administrateur</div></div></div>`:''}`;}
-function renderMissions(){const tabs=[{k:'all',l:'Toutes'},{k:'en_cours',l:'En cours'},{k:'a_valider',l:'À valider'},{k:'valide',l:'Validées'},{k:'paye',l:'Payées'}];document.getElementById('mis-tabs').innerHTML=tabs.map(t=>`<div class="tab ${misFilter===t.k?'act':''}" onclick="misFilter='${t.k}';renderMissions()">${t.l}</div>`).join('');let mis=(db.missions||[]).filter(m=>m.stat!=='annule'&&m.stat!=='archive');if(misFilter!=='all')mis=mis.filter(m=>m.stat===misFilter);document.getElementById('mis-list').innerHTML=mis.length?mis.map(m=>`<div class="mc" onclick="openDetail('${m.id}')"><div class="mc-hdr"><div><div class="mc-title">${m.num?`<span style="font-size:9px;color:var(--blu)">${m.num}</span> `:''} ${m.titre}</div><div class="mc-adr">${m.adresse||''}</div></div><span class="tag ${statClass(m.stat)}">${statLabel(m.stat)}</span></div><div class="prog-bar"><div class="prog-fill" style="width:${m.prog||0}%"></div></div></div>`).join(''):'<p style="color:var(--mut);text-align:center;padding:30px">Aucune mission active</p>';}
-function renderArchives(){const mis=(db.missions||[]).filter(m=>m.stat==='annule'||m.stat==='archive'||m.stat==='paye');document.getElementById('archives-list').innerHTML=mis.length?`<div style="background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);border-radius:10px;padding:10px;margin-bottom:12px;font-size:12px;color:var(--mut);text-align:center">📦 ${mis.length} mission(s) archivée(s)</div>`+mis.map(m=>`<div class="mc" onclick="openDetail('${m.id}')"><div class="mc-hdr"><div><div class="mc-title">${m.num?`<span style="font-size:9px;color:var(--blu)">${m.num}</span> `:''} ${m.titre}</div><div class="mc-adr">${m.adresse||''}</div></div><span class="tag ${statClass(m.stat)}">${statLabel(m.stat)}</span></div></div>`).join(''):'<p style="color:var(--mut);text-align:center;padding:30px">Aucune archive</p>';}
-function switchTeamTab(t){teamTab=t;document.getElementById('tab-st').classList.toggle('act',t==='st');document.getElementById('tab-per').classList.toggle('act',t==='per');renderEquipes();}
-function renderEquipes(){const el=document.getElementById('equipe-list');if(teamTab==='st'){const sts=db.soustraitants||[];const byMet={};sts.forEach(s=>{const m=s.metier||'Autre';if(!byMet[m])byMet[m]=[];byMet[m].push(s);});el.innerHTML=sts.length?Object.entries(byMet).map(([met,list])=>`<div class="met-section"><div class="met-title">🔧 ${met}</div>${list.map(s=>`<div class="contact-card"><div class="contact-ava">${s.nom[0]}</div><div class="contact-info"><div class="contact-name">${s.nom}</div><div class="contact-role">${s.metier||''} ${s.entreprise?'· '+s.entreprise:''}</div><div class="contact-tel">${s.tel||''}</div></div><div style="display:flex;gap:6px">${s.tel?`<div class="ibtn" onclick="window.location='tel:${s.tel}'">📞</div>`:''}<div class="ibtn" onclick="editEquipe('${s.id}','st')">✏️</div><div class="ibtn" onclick="deleteEquipe('${s.id}','st')">🗑️</div></div></div>`).join('')}</div>`).join(''):'<p style="color:var(--mut);text-align:center;padding:30px">Aucun sous-traitant</p>';}else{const pers=db.personnel||[];const byPoste={};pers.forEach(p=>{const pos=p.poste||'Autre';if(!byPoste[pos])byPoste[pos]=[];byPoste[pos].push(p);});el.innerHTML=pers.length?Object.entries(byPoste).map(([poste,list])=>`<div class="met-section"><div class="met-title">👔 ${poste}</div>${list.map(p=>`<div class="contact-card"><div class="contact-ava">${p.nom[0]}</div><div class="contact-info"><div class="contact-name">${p.nom}</div><div class="contact-role">${p.poste||''}</div><div class="contact-tel">${p.tel||''}</div></div><div style="display:flex;gap:6px">${p.tel?`<div class="ibtn" onclick="window.location='tel:${p.tel}'">📞</div>`:''}<div class="ibtn" onclick="editEquipe('${p.id}','per')">✏️</div><div class="ibtn" onclick="deleteEquipe('${p.id}','per')">🗑️</div></div></div>`).join('')}</div>`).join(''):'<p style="color:var(--mut);text-align:center;padding:30px">Aucun personnel</p>';}}
-function showAddEquipe(){const m=document.getElementById('mbox-equipe');m.innerHTML=`<h3>${teamTab==='st'?'➕ Nouveau sous-traitant':'➕ Nouveau personnel'}</h3><input class="inp" id="eq-nom" placeholder="Nom complet">${teamTab==='st'?`<input class="inp" id="eq-met" placeholder="Métier (ex: Plomberie, Électricité...)"><input class="inp" id="eq-ent" placeholder="Entreprise (optionnel)"><input class="inp" id="eq-tel" placeholder="Téléphone WhatsApp"><input class="inp" id="eq-email" placeholder="Email (optionnel)">`:`<input class="inp" id="eq-poste" placeholder="Poste (ex: Chef de chantier, Plombier...)"><input class="inp" id="eq-tel" placeholder="Téléphone"><input class="inp" id="eq-pin" placeholder="Code PIN à 4 chiffres">`}<div style="display:flex;gap:8px;margin-top:8px"><button class="btn sec" onclick="closeModal('modal-equipe')">Annuler</button><button class="btn pri" onclick="saveEquipe(null)">Enregistrer</button></div>`;document.getElementById('modal-equipe').classList.remove('hidden');}
-function editEquipe(id,type){const item=type==='st'?(db.soustraitants||[]).find(x=>x.id===id):(db.personnel||[]).find(x=>x.id===id);if(!item)return;const m=document.getElementById('mbox-equipe');m.innerHTML=`<h3>${type==='st'?'✏️ Modifier sous-traitant':'✏️ Modifier personnel'}</h3><input class="inp" id="eq-nom" placeholder="Nom complet" value="${item.nom||''}">${type==='st'?`<input class="inp" id="eq-met" placeholder="Métier" value="${item.metier||''}"><input class="inp" id="eq-ent" placeholder="Entreprise" value="${item.entreprise||''}"><input class="inp" id="eq-tel" placeholder="Téléphone WhatsApp" value="${item.tel||''}"><input class="inp" id="eq-email" placeholder="Email" value="${item.email||''}">`:`<input class="inp" id="eq-poste" placeholder="Poste" value="${item.poste||''}"><input class="inp" id="eq-tel" placeholder="Téléphone" value="${item.tel||''}"><input class="inp" id="eq-pin" placeholder="Code PIN à 4 chiffres" value="${item.pin||''}">`}<div style="display:flex;gap:8px;margin-top:8px"><button class="btn sec" onclick="closeModal('modal-equipe')">Annuler</button><button class="btn pri" onclick="saveEquipe('${id}','${type}')">Enregistrer</button></div>`;document.getElementById('modal-equipe').classList.remove('hidden');}
-function saveEquipe(existingId,existingType){const type=existingType||teamTab;const nom=document.getElementById('eq-nom').value.trim();if(!nom){toast('❌ Nom requis');return;}if(type==='st'){const st={id:existingId||'st'+Date.now(),nom,metier:document.getElementById('eq-met').value.trim()||'Autre',entreprise:document.getElementById('eq-ent').value.trim(),tel:document.getElementById('eq-tel').value.trim(),email:document.getElementById('eq-email').value.trim()};emit('equipe:add',{type:'st',data:st,update:!!existingId});}else{const pin=document.getElementById('eq-pin').value.trim();const per={id:existingId||'per'+Date.now(),nom,poste:document.getElementById('eq-poste').value.trim()||'Autre',tel:document.getElementById('eq-tel').value.trim(),pin:pin||null};emit('equipe:add',{type:'per',data:per,update:!!existingId});}closeModal('modal-equipe');toast('✅ Enregistré');}
-function deleteEquipe(id,type){if(!confirm('Supprimer ?'))return;emit('equipe:delete',{id,type});toast('🗑️ Supprimé');}
-function showAddMission(){const mbox=document.getElementById('mbox-mission');mbox.innerHTML=`<h3>➕ Nouvelle mission</h3><input class="inp" id="mis-titre" placeholder="Titre de la mission"><input class="inp" id="mis-adr" placeholder="Adresse du chantier"><textarea class="inp" id="mis-desc" placeholder="Description" rows="3"></textarea><input class="inp" id="mis-date" type="date"><input class="inp" id="mis-montant" type="number" placeholder="Montant total € (optionnel)"><input class="inp" id="mis-notes" placeholder="Notes"><div style="display:flex;gap:8px;margin-top:8px"><button class="btn sec" onclick="closeModal('modal-mission')">Annuler</button><button class="btn pri" onclick="saveMission()">Créer</button></div>`;document.getElementById('modal-mission').classList.remove('hidden');}
-function saveMission(){const titre=document.getElementById('mis-titre').value.trim();const adresse=document.getElementById('mis-adr').value.trim();if(!titre){toast('❌ Titre requis');return;}const doublon=(db.missions||[]).find(m=>m.titre.toLowerCase()===titre.toLowerCase()&&m.adresse?.toLowerCase()===adresse.toLowerCase()&&m.stat!=='annule');if(doublon){toast('⚠️ Mission similaire existe déjà: '+doublon.num);if(!confirm('Une mission similaire existe ('+doublon.num+'). Continuer quand même ?'))return;}const n=db.config?.nextMis||1;const num='MIS-'+new Date().toISOString().slice(0,10).replace(/-/g,'')+'-'+n.toString().padStart(3,'0');const m={id:'m'+Date.now(),num,titre,adresse,desc:document.getElementById('mis-desc').value.trim(),date:document.getElementById('mis-date').value,montantTotal:parseFloat(document.getElementById('mis-montant').value)||0,notes:document.getElementById('mis-notes').value.trim(),stat:'en_cours',prog:10,itvs:[],checklist:[],paiements:[],createdAt:new Date().toISOString(),createdBy:currentUser?.nom||''};emit('mission:add',m);closeModal('modal-mission');toast('✅ Mission créée: '+num);}
-function openDetail(id){showScreen('detail');buildDetail(id);}
-function buildDetail(id){const m=(db.missions||[]).find(x=>x.id===id);if(!m)return;const totalPaye=(m.paiements||[]).reduce((s,p)=>s+(parseFloat(p.montant)||0),0);const reste=(m.montantTotal||0)-totalPaye;document.getElementById('detail-content').innerHTML=`<div style="margin-bottom:12px"><div style="font-size:11px;color:var(--blu)">${m.num||''}</div><div style="font-size:20px;font-weight:800;margin:4px 0">${m.titre}</div><div style="font-size:12px;color:var(--mut)">${m.adresse||''}</div><span class="tag ${statClass(m.stat)}" style="margin-top:8px;display:inline-block">${statLabel(m.stat)}</span></div><div class="prog-bar" style="margin-bottom:16px"><div class="prog-fill" style="width:${m.prog||0}%"></div></div>${m.montantTotal?`<div style="background:rgba(37,211,102,.08);border:1px solid rgba(37,211,102,.2);border-radius:10px;padding:10px;margin-bottom:12px"><div style="display:flex;justify-content:space-between"><span style="font-size:12px;color:var(--mut)">Montant total</span><span style="font-size:14px;font-weight:800;color:var(--acc)">${m.montantTotal}€</span></div><div style="display:flex;justify-content:space-between;margin-top:4px"><span style="font-size:12px;color:var(--mut)">Payé</span><span style="font-size:13px;font-weight:700;color:var(--acc)">${totalPaye}€</span></div><div style="display:flex;justify-content:space-between;margin-top:4px"><span style="font-size:12px;color:var(--mut)">Reste à payer</span><span style="font-size:13px;font-weight:700;color:${reste>0?'var(--red)':'var(--acc)'}">${reste}€</span></div></div>`:''}${m.desc?`<div style="font-size:13px;color:var(--mut);margin-bottom:12px">${m.desc}</div>`:''}${m.notes?`<div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:10px;padding:10px;margin-bottom:12px;font-size:12px"><b>📝 Notes:</b> ${m.notes}</div>`:''}
-<div class="sec">Paiements reçus</div>${(m.paiements||[]).map((p,i)=>`<div class="paiement-card"><div class="paiement-row"><span style="font-size:13px;font-weight:700">💳 Paiement ${i+1}</span><span style="font-size:14px;font-weight:800;color:var(--acc)">${p.montant}€</span></div><div style="font-size:11px;color:var(--mut)">${p.date?new Date(p.date).toLocaleDateString('fr-FR'):''} ${p.note?'· '+p.note:''}</div></div>`).join('')}<button class="btn sec" style="margin-bottom:12px" onclick="showAddPaiement('${m.id}')">➕ Enregistrer un paiement</button>
-<div class="sec">Intervenants</div>${(m.itvs||[]).map(itv=>`<div class="itv-card"><div class="itv-name">${itv.nom} <span style="font-size:10px;color:var(--mut)">${itv._type==='per'?'👔':'🔧'}</span></div><div class="itv-meta">${itv.metier||itv.poste||''}</div>${itv.debut?`<div class="itv-meta">🕐 Début: ${new Date(itv.debut).toLocaleString('fr-FR')}</div>`:''}${itv.fin?`<div class="itv-meta">🕑 Fin: ${new Date(itv.fin).toLocaleString('fr-FR')}</div>`:''}${itv.montant?`<div class="itv-meta">💰 ${itv.montant}€</div>`:''}</div>`).join('')}<button class="btn sec" style="margin-bottom:12px" onclick="showAddItv('${m.id}')">➕ Ajouter intervenant</button>
-<div class="sec">Checklist</div><div class="ck-list">${(m.checklist||[]).map((c,i)=>`<div class="ck-item" onclick="toggleCk('${m.id}',${i})"><div class="ck-box ${c.done?'done':''}">${c.done?'✓':''}</div><span style="font-size:13px;${c.done?'text-decoration:line-through;color:var(--mut)':''}">${c.txt}</span></div>`).join('')}</div><button class="btn sec" style="margin-bottom:16px" onclick="addCk('${m.id}')">➕ Ajouter étape</button>
-<div class="sec">Actions</div><div style="display:flex;flex-direction:column;gap:8px">${m.stat!=='annule'&&m.stat!=='archive'?`<button class="btn wa" onclick="sendWhatsApp('${m.id}')">📱 Envoyer sur WhatsApp</button><button class="btn sec" onclick="setStatut('${m.id}','en_cours')">🔨 En cours</button><button class="btn sec" onclick="setStatut('${m.id}','a_valider')">📋 À valider</button>${currentUser?.isAdmin||currentUser?.role==='Comptabilité'||currentUser?.role==='Paiements'?`<button class="btn amb" onclick="valider('${m.id}')">✅ Valider</button><button class="btn pri" onclick="payer('${m.id}')">💳 Marquer payée</button>`:''}<button class="btn dan" onclick="annulerMission('${m.id}')">🚫 Annuler et archiver</button>`:`<div style="text-align:center;color:var(--red);padding:12px">❌ Mission archivée</div>`}</div>`;}
-function showAddPaiement(mId){const mbox=document.getElementById('mbox-itv');mbox.innerHTML=`<h3>💳 Enregistrer un paiement</h3><input class="inp" id="pay-montant" type="number" placeholder="Montant reçu €"><input class="inp" id="pay-date" type="date" value="${new Date().toISOString().slice(0,10)}"><input class="inp" id="pay-note" placeholder="Note (ex: virement, chèque...)"><div style="display:flex;gap:8px;margin-top:8px"><button class="btn sec" onclick="closeModal('modal-itv')">Annuler</button><button class="btn pri" onclick="savePaiement('${mId}')">Enregistrer</button></div>`;document.getElementById('modal-itv').classList.remove('hidden');}
-function savePaiement(mId){const montant=parseFloat(document.getElementById('pay-montant').value);if(!montant){toast('❌ Montant requis');return;}const p={id:'pay'+Date.now(),montant,date:document.getElementById('pay-date').value,note:document.getElementById('pay-note').value.trim()};emit('mission:add-paiement',{mId,paiement:p});closeModal('modal-itv');toast('✅ Paiement enregistré: '+montant+'€');setTimeout(()=>buildDetail(mId),500);}
-function sendWhatsApp(id){const m=(db.missions||[]).find(x=>x.id===id);if(!m)return;const totalPaye=(m.paiements||[]).reduce((s,p)=>s+(parseFloat(p.montant)||0),0);const reste=(m.montantTotal||0)-totalPaye;const itvs=(m.itvs||[]).map(i=>`• ${i.nom} (${i.metier||i.poste||''})${i.debut?' - Début: '+new Date(i.debut).toLocaleString('fr-FR'):''}${i.fin?' - Fin: '+new Date(i.fin).toLocaleString('fr-FR'):''}${i.montant?' - '+i.montant+'€':''}`).join('\n');const txt=`🏗️ *AMS BAT - Mission ${m.num||''}*\n\n📋 *${m.titre}*\n📍 ${m.adresse||'Non précisée'}\n📅 ${m.date?new Date(m.date).toLocaleDateString('fr-FR'):''}\n\n${m.desc?'📝 '+m.desc+'\n\n':''}${itvs?'👷 *Intervenants:*\n'+itvs+'\n\n':''}${m.montantTotal?'💰 *Montant total:* '+m.montantTotal+'€\n✅ *Payé:* '+totalPaye+'€\n⏳ *Reste:* '+reste+'€\n\n':''}${m.notes?'📌 Notes: '+m.notes+'\n\n':''}Statut: ${statLabel(m.stat)}\n\nAMS BAT 🏗️`;window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');toast('📱 WhatsApp ouvert !');}
-function showAddItv(mId){const allTeam=[...(db.soustraitants||[]).map(s=>({...s,_type:'st'})),...(db.personnel||[]).map(p=>({...p,_type:'per'}))];const mbox=document.getElementById('mbox-mission');mbox.innerHTML=`<h3>➕ Ajouter intervenant</h3><select class="inp" id="itv-sel"><option value="">-- Choisir --</option><optgroup label="🔧 Sous-traitants">${(db.soustraitants||[]).map(s=>`<option value="${s.id}">${s.nom} - ${s.metier||''}</option>`).join('')}</optgroup><optgroup label="👔 Personnel AMS BAT">${(db.personnel||[]).map(p=>`<option value="${p.id}">${p.nom} - ${p.poste||''}</option>`).join('')}</optgroup></select><label style="font-size:12px;color:var(--mut)">Début intervention</label><input class="inp" id="itv-debut" type="datetime-local"><label style="font-size:12px;color:var(--mut)">Fin intervention</label><input class="inp" id="itv-fin" type="datetime-local"><input class="inp" id="itv-mont" type="number" placeholder="Montant € (optionnel)"><div style="display:flex;gap:8px;margin-top:8px"><button class="btn sec" onclick="closeModal('modal-mission')">Annuler</button><button class="btn pri" onclick="saveItv('${mId}')">Ajouter</button></div>`;document.getElementById('modal-mission').classList.remove('hidden');}
-function saveItv(mId){const sel=document.getElementById('itv-sel').value;if(!sel){toast('❌ Choisir un intervenant');return;}const allTeam=[...(db.soustraitants||[]).map(s=>({...s,_type:'st'})),...(db.personnel||[]).map(p=>({...p,_type:'per'}))];const t=allTeam.find(x=>x.id===sel);if(!t)return;const n=db.config?.nextItv||1;const num='ITV-'+new Date().toISOString().slice(0,10).replace(/-/g,'')+'-'+n.toString().padStart(3,'0');const itv={id:'itv'+Date.now(),num,nom:t.nom,metier:t.metier||t.poste||'',_type:t._type,debut:document.getElementById('itv-debut').value,fin:document.getElementById('itv-fin').value,montant:document.getElementById('itv-mont').value};emit('mission:add-itv',{mId,itv});closeModal('modal-mission');toast('✅ '+num+' ajouté');setTimeout(()=>buildDetail(mId),500);}
-function addCk(mId){const txt=prompt('Nouvelle étape:');if(!txt)return;emit('mission:add-ck',{mId,txt});}
-function toggleCk(mId,idx){emit('mission:toggle-ck',{mId,idx});}
-function setStatut(id,s){emit('mission:update',{id,changes:{stat:s,prog:s==='a_valider'?90:40}});toast('✅ Statut mis à jour');setTimeout(()=>buildDetail(id),500);}
-function valider(id){emit('mission:update',{id,changes:{stat:'valide',prog:95}});toast('✅ Validé');setTimeout(()=>buildDetail(id),500);}
-function payer(id){emit('mission:update',{id,changes:{stat:'paye',prog:100}});toast('💳 Payée');setTimeout(()=>buildDetail(id),500);}
-function annulerMission(id){if(!confirm('Annuler et archiver cette mission ?'))return;emit('mission:update',{id,changes:{stat:'annule',prog:0}});toast('📦 Mission archivée');goBack();}
-function renderCompta(){const mis=db.missions||[];const total=mis.reduce((s,m)=>s+(m.montantTotal||0),0);const totalPaye=mis.reduce((s,m)=>s+(m.paiements||[]).reduce((a,p)=>a+(parseFloat(p.montant)||0),0),0);document.getElementById('compta-content').innerHTML=`<div class="sgrid" style="padding:0;margin-bottom:16px"><div class="scard"><div class="snum">${total.toFixed(0)}€</div><div class="slbl">Total</div></div><div class="scard"><div class="snum a">${totalPaye.toFixed(0)}€</div><div class="slbl">Payé</div></div><div class="scard"><div class="snum r">${(total-totalPaye).toFixed(0)}€</div><div class="slbl">Restant</div></div></div><div class="sec">Suivi par mission</div>${mis.filter(m=>m.montantTotal).map(m=>{const paye=(m.paiements||[]).reduce((a,p)=>a+(parseFloat(p.montant)||0),0);const reste=(m.montantTotal||0)-paye;return`<div class="mc" onclick="openDetail('${m.id}')"><div class="mc-hdr"><div><div class="mc-title">${m.num?`<span style="font-size:9px;color:var(--blu)">${m.num}</span> `:''} ${m.titre}</div></div><span class="tag ${statClass(m.stat)}">${statLabel(m.stat)}</span></div><div style="display:flex;justify-content:space-between;margin-top:8px;font-size:12px"><span style="color:var(--mut)">Total: <b style="color:var(--txt)">${m.montantTotal}€</b></span><span style="color:var(--mut)">Payé: <b style="color:var(--acc)">${paye}€</b></span><span style="color:var(--mut)">Reste: <b style="color:${reste>0?'var(--red)':'var(--acc)'}">${reste}€</b></span></div></div>`;}).join('')||'<p style="color:var(--mut);text-align:center;padding:20px">Aucune donnée</p>'}`;}
-function showAdmin(){if(!currentUser?.isAdmin){toast('❌ Accès refusé');return;}const mbox=document.getElementById('mbox-admin');mbox.innerHTML=`<h3>⚙️ Administration</h3><div class="sec">Membres équipe</div>${db.users.map(u=>`<div class="mc" style="margin-bottom:8px"><div class="mc-hdr"><div><div class="mc-title">${u.nom}</div><div class="mc-adr">${u.role} · PIN: ${u.pin}</div></div><div style="display:flex;gap:6px"><div class="ibtn" onclick="editUser('${u.id}')">✏️</div>${!u.isAdmin?`<div class="ibtn" onclick="deleteUser('${u.id}')">🗑️</div>`:''}</div></div></div>`).join('')}<button class="btn sec" style="margin-bottom:12px" onclick="addUser()">➕ Ajouter membre</button><div class="sec">Code d'accès partagé</div><div style="display:flex;gap:8px;margin-bottom:12px"><input class="inp" id="new-code" placeholder="Nouveau code" style="margin-bottom:0" value="${db.config?.accessCode||'AMSBAT2026'}"><button class="btn pri" style="width:auto;padding:0 16px" onclick="saveCode()">💾</button></div><button class="btn sec" onclick="closeModal('modal-admin')">Fermer</button>`;document.getElementById('modal-admin').classList.remove('hidden');}
-function addUser(){const nom=prompt('Nom:');if(!nom)return;const role=prompt('Rôle:');if(!role)return;const pin=prompt('PIN 4 chiffres:');if(!pin||pin.length!==4){toast('❌ PIN invalide');return;}emit('user:add',{id:'u'+Date.now(),nom,role,pin});toast('✅ Ajouté');setTimeout(showAdmin,500);}
-function editUser(id){const u=db.users.find(x=>x.id===id);if(!u)return;const pin=prompt('Nouveau PIN pour '+u.nom+':');if(!pin||pin.length!==4){toast('❌ PIN invalide');return;}emit('user:update',{id,pin});toast('✅ PIN modifié');}
-function deleteUser(id){if(!confirm('Supprimer ?'))return;emit('user:delete',{id});toast('🗑️ Supprimé');setTimeout(showAdmin,500);}
-function saveCode(){const code=document.getElementById('new-code').value.trim().toUpperCase();if(!code){toast('❌ Code vide');return;}emit('config:update',{accessCode:code});toast('✅ Code mis à jour');}
-function statClass(s){return{en_cours:'s-ec',a_valider:'s-va',valide:'s-co',paye:'s-pa',annule:'s-an',archive:'s-an',en_retard:'s-an'}[s]||'s-av';}
-function statLabel(s){return{en_cours:'En cours',a_valider:'À valider',valide:'Validée',paye:'Payée',annule:'Annulée',archive:'Archivée',en_retard:'En retard'}[s]||s;}
-function toast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.getElementById('toast-c').appendChild(t);setTimeout(()=>t.remove(),3000);}
-function closeModal(id){document.getElementById(id).classList.add('hidden');}
-showScreen('login');
-setInterval(()=>{if(!['login','pin','userselect'].includes(currentScreen))refresh();},30000);
-</script>
-</body>
-</html>
+const express=require('express');
+const http=require('http');
+const {Server}=require('socket.io');
+const fs=require('fs');
+const path=require('path');
+const app=express();
+const server=http.createServer(app);
+const io=new Server(server,{cors:{origin:'*'}});
+const PORT=process.env.PORT||3000;
+const DB_FILE=path.join(__dirname,'db.json');
+function loadDB(){if(!fs.existsSync(DB_FILE))return{missions:[],soustraitants:[],personnel:[],users:[{id:'u1',nom:'Haimane',role:'Administrateur',pin:'0000',isAdmin:true},{id:'u2',nom:'Shanaz',role:'Comptabilite',pin:'1111'},{id:'u3',nom:'Fatima Zara',role:'Paiements',pin:'2222'},{id:'u4',nom:'Miryem',role:'Coordination',pin:'3333'}],config:{accessCode:'AMSBAT2026',nextMis:1,nextItv:1}};try{return JSON.parse(fs.readFileSync(DB_FILE,'utf8'));}catch(e){return{missions:[],soustraitants:[],personnel:[],users:[],config:{accessCode:'AMSBAT2026',nextMis:1,nextItv:1}};}}
+function saveDB(d){fs.writeFileSync(DB_FILE,JSON.stringify(d,null,2));}
+app.use(express.json());
+app.use(express.static(__dirname));
+io.on('connection',(socket)=>{
+socket.emit('init',loadDB());
+socket.on('mission:add',(m)=>{const d=loadDB();if(!d.missions)d.missions=[];d.missions.push(m);if(d.config)d.config.nextMis=(d.config.nextMis||1)+1;saveDB(d);io.emit('update',d);});
+socket.on('mission:update',({id,changes})=>{const d=loadDB();const m=d.missions.find(x=>x.id===id);if(m)Object.assign(m,changes);saveDB(d);io.emit('update',d);});
+socket.on('mission:add-itv',({mId,itv})=>{const d=loadDB();const m=d.missions.find(x=>x.id===mId);if(m){if(!m.itvs)m.itvs=[];m.itvs.push(itv);if(d.config)d.config.nextItv=(d.config.nextItv||1)+1;}saveDB(d);io.emit('update',d);});
+socket.on('mission:add-ck',({mId,txt})=>{const d=loadDB();const m=d.missions.find(x=>x.id===mId);if(m){if(!m.checklist)m.checklist=[];m.checklist.push({txt,done:false});}saveDB(d);io.emit('update',d);});
+socket.on('mission:toggle-ck',({mId,idx})=>{const d=loadDB();const m=d.missions.find(x=>x.id===mId);if(m&&m.checklist&&m.checklist[idx])m.checklist[idx].done=!m.checklist[idx].done;saveDB(d);io.emit('update',d);});
+socket.on('mission:add-paiement',({mId,paiement})=>{const d=loadDB();const m=d.missions.find(x=>x.id===mId);if(m){if(!m.paiements)m.paiements=[];m.paiements.push(paiement);}saveDB(d);io.emit('update',d);});
+socket.on('equipe:add',({type,data,update})=>{const d=loadDB();if(type==='st'){if(!d.soustraitants)d.soustraitants=[];if(update){const idx=d.soustraitants.findIndex(x=>x.id===data.id);if(idx>=0)d.soustraitants[idx]=data;else d.soustraitants.push(data);}else{d.soustraitants.push(data);}}else if(type==='per'){if(!d.personnel)d.personnel=[];if(update){const idx=d.personnel.findIndex(x=>x.id===data.id);if(idx>=0)d.personnel[idx]=data;else d.personnel.push(data);}else{d.personnel.push(data);}}saveDB(d);io.emit('update',d);});
+socket.on('equipe:delete',({id,type})=>{const d=loadDB();if(type==='st')d.soustraitants=d.soustraitants.filter(x=>x.id!==id);else if(type==='per')d.personnel=d.personnel.filter(x=>x.id!==id);saveDB(d);io.emit('update',d);});
+socket.on('user:add',(u)=>{const d=loadDB();if(!d.users)d.users=[];d.users.push(u);saveDB(d);io.emit('update',d);});
+socket.on('user:update',({id,pin})=>{const d=loadDB();const u=d.users.find(x=>x.id===id);if(u)u.pin=pin;saveDB(d);io.emit('update',d);});
+socket.on('user:delete',({id})=>{const d=loadDB();d.users=d.users.filter(x=>x.id!==id);saveDB(d);io.emit('update',d);});
+socket.on('config:update',(changes)=>{const d=loadDB();if(!d.config)d.config={};Object.assign(d.config,changes);saveDB(d);io.emit('update',d);});
+socket.on('disconnect',()=>{console.log('Disconnected:',socket.id);});
+});
+server.listen(PORT,()=>console.log('AMS BAT demarre sur http://localhost:'+PORT));
